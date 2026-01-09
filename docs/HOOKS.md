@@ -756,7 +756,7 @@ public function test_custom_cache_filter()
 ## Support
 
 For questions about hooks:
-- [GitHub Issues](https://github.com/ersinkoc/blitz-cache/issues)
+- [GitHub Issues](https://github.com/BlitzCache/blitzcache/issues)
 - [WordPress.org Forum](https://wordpress.org/support/plugin/blitz-cache)
 
 ---

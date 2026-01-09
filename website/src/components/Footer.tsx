@@ -11,16 +11,16 @@ export function Footer() {
       { label: "FAQ", href: "#faq" },
     ],
     resources: [
-      { label: "Documentation", href: "https://github.com/ersinkoc/blitz-cache/tree/main/docs" },
-      { label: "Installation Guide", href: "https://github.com/ersinkoc/blitz-cache/blob/main/docs/installation.md" },
-      { label: "Configuration", href: "https://github.com/ersinkoc/blitz-cache/blob/main/docs/configuration.md" },
-      { label: "Hooks Reference", href: "https://github.com/ersinkoc/blitz-cache/blob/main/docs/HOOKS.md" },
+      { label: "Documentation", href: "https://github.com/BlitzCache/blitzcache/tree/main/docs" },
+      { label: "Installation Guide", href: "https://github.com/BlitzCache/blitzcache/blob/main/docs/installation.md" },
+      { label: "Configuration", href: "https://github.com/BlitzCache/blitzcache/blob/main/docs/configuration.md" },
+      { label: "Hooks Reference", href: "https://github.com/BlitzCache/blitzcache/blob/main/docs/HOOKS.md" },
     ],
     community: [
-      { label: "GitHub", href: "https://github.com/ersinkoc/blitz-cache" },
-      { label: "Issues", href: "https://github.com/ersinkoc/blitz-cache/issues" },
-      { label: "Contributing", href: "https://github.com/ersinkoc/blitz-cache/blob/main/CONTRIBUTING.md" },
-      { label: "Security", href: "https://github.com/ersinkoc/blitz-cache/blob/main/SECURITY.md" },
+      { label: "GitHub", href: "https://github.com/BlitzCache/blitzcache" },
+      { label: "Issues", href: "https://github.com/BlitzCache/blitzcache/issues" },
+      { label: "Contributing", href: "https://github.com/BlitzCache/blitzcache/blob/main/CONTRIBUTING.md" },
+      { label: "Security", href: "https://github.com/BlitzCache/blitzcache/blob/main/SECURITY.md" },
     ],
     company: [
       { label: "About", href: "https://github.com/ersinkoc" },
@@ -31,7 +31,7 @@ export function Footer() {
   }
 
   const socialLinks = [
-    { icon: Github, href: "https://github.com/ersinkoc/blitz-cache", label: "GitHub" },
+    { icon: Github, href: "https://github.com/BlitzCache/blitzcache", label: "GitHub" },
     { icon: Twitter, href: "https://twitter.com/ersinkoc", label: "Twitter" },
     { icon: Mail, href: "mailto:hello@blitzcache.com", label: "Email" },
   ]
@@ -156,7 +156,7 @@ export function Footer() {
             </p>
             <div className="flex gap-6">
               <a
-                href="https://github.com/ersinkoc/blitz-cache/blob/main/LICENSE"
+                href="https://github.com/BlitzCache/blitzcache/blob/main/LICENSE"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-emerald-600 transition-colors"
@@ -164,7 +164,7 @@ export function Footer() {
                 License
               </a>
               <a
-                href="https://github.com/ersinkoc/blitz-cache/blob/main/SECURITY.md"
+                href="https://github.com/BlitzCache/blitzcache/blob/main/SECURITY.md"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-emerald-600 transition-colors"
@@ -172,7 +172,7 @@ export function Footer() {
                 Security
               </a>
               <a
-                href="https://github.com/ersinkoc/blitz-cache/blob/main/docs/configuration.md"
+                href="https://github.com/BlitzCache/blitzcache/blob/main/docs/configuration.md"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-emerald-600 transition-colors"

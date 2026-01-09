@@ -28,13 +28,13 @@ export function Hero() {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-0">
-                <a href="https://github.com/ersinkoc/blitz-cache/releases" className="flex items-center gap-2">
+                <a href="https://github.com/BlitzCache/blitzcache/releases" className="flex items-center gap-2">
                   <Download className="h-5 w-5" />
                   Download Now
                 </a>
               </Button>
               <Button size="lg" variant="outline" className="gap-2 border-2">
-                <a href="https://github.com/ersinkoc/blitz-cache" className="flex items-center gap-2">
+                <a href="https://github.com/BlitzCache/blitzcache" className="flex items-center gap-2">
                   <GitBranch className="h-5 w-5" />
                   View on GitHub
                 </a>

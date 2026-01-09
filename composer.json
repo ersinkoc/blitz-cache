@@ -12,7 +12,7 @@
         "gzip",
         "minify"
     ],
-    "homepage": "https://github.com/ersinkoc/blitz-cache",
+    "homepage": "https://github.com/BlitzCache/blitzcache",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
@@ -65,9 +65,9 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "support": {
-        "issues": "https://github.com/ersinkoc/blitz-cache/issues",
-        "wiki": "https://github.com/ersinkoc/blitz-cache/wiki",
-        "source": "https://github.com/ersinkoc/blitz-cache"
+        "issues": "https://github.com/BlitzCache/blitzcache/issues",
+        "wiki": "https://github.com/BlitzCache/blitzcache/wiki",
+        "source": "https://github.com/BlitzCache/blitzcache"
     },
     "funding": [
         {
@@ -78,7 +78,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/ersinkoc/blitz-cache.git"
+            "url": "https://github.com/BlitzCache/blitzcache.git"
         }
     ]
 }

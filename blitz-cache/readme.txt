@@ -405,7 +405,7 @@ None at this time.
 
 ### Support
 For support, feature requests, and bug reports:
-- GitHub: https://github.com/ersinkoc/blitz-cache/issues
+- GitHub: https://github.com/BlitzCache/blitzcache/issues
 - WordPress.org: https://wordpress.org/support/plugin/blitz-cache
 
 == Upgrade Notice ==
@@ -458,12 +458,12 @@ Blitz Cache provides many hooks for developers:
 * `blitz_cache_purge_urls` - Customize URLs to purge on content changes
 * `blitz_cache_warmup_urls` - Customize URLs for cache warmup
 
-See the documentation at https://github.com/ersinkoc/blitz-cache for complete hook reference.
+See the documentation at https://github.com/BlitzCache/blitzcache for complete hook reference.
 
 == Support ==
 
 For support, feature requests, and bug reports:
-* GitHub: https://github.com/ersinkoc/blitz-cache/issues
+* GitHub: https://github.com/BlitzCache/blitzcache/issues
 * WordPress.org: https://wordpress.org/support/plugin/blitz-cache
 
 == Privacy Policy ==

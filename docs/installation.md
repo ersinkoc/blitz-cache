@@ -98,7 +98,7 @@ For advanced users and developers.
 
 ```bash
 # Download and install Blitz Cache
-wp plugin install https://github.com/ersinkoc/blitz-cache/archive/main.zip --activate
+wp plugin install https://github.com/BlitzCache/blitzcache/archive/main.zip --activate
 
 # Or install from WordPress.org
 wp plugin install blitz-cache --activate
@@ -128,7 +128,7 @@ If you need to upload files directly.
 
 #### Step 1: Download Plugin
 
-1. Download the latest version from [GitHub Releases](https://github.com/ersinkoc/blitz-cache/releases)
+1. Download the latest version from [GitHub Releases](https://github.com/BlitzCache/blitzcache/releases)
 2. Extract the zip file
 
 #### Step 2: Upload to Server
@@ -183,7 +183,7 @@ For developers who want the latest version.
 ```bash
 # Clone the repository
 cd /path/to/wordpress/wp-content/plugins/
-git clone https://github.com/ersinkoc/blitz-cache.git
+git clone https://github.com/BlitzCache/blitzcache.git
 
 # Or use GitHub CLI
 gh repo clone ersinkoc/blitz-cache
@@ -604,7 +604,7 @@ Use only one cache plugin at a time.
 ### Support Channels
 
 1. **GitHub Issues** - For bugs and feature requests:
-   https://github.com/ersinkoc/blitz-cache/issues
+   https://github.com/BlitzCache/blitzcache/issues
 
 2. **WordPress.org Forum** - For general support:
    https://wordpress.org/support/plugin/blitz-cache

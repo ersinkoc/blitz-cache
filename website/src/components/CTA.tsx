@@ -18,13 +18,13 @@ export function CTA() {
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center items-center mb-12">
             <Button size="lg" className="gap-3 bg-white text-emerald-600 hover:bg-gray-100 border-0 font-bold px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all">
-              <a href="https://github.com/ersinkoc/blitz-cache/releases" className="flex items-center gap-3">
+              <a href="https://github.com/BlitzCache/blitzcache/releases" className="flex items-center gap-3">
                 <Download className="h-6 w-6" />
                 Download Free
               </a>
             </Button>
             <Button size="lg" variant="outline" className="gap-3 bg-transparent border-2 border-white text-white hover:bg-white hover:text-emerald-600 font-bold px-8 py-6 text-lg transition-all">
-              <a href="https://github.com/ersinkoc/blitz-cache" className="flex items-center gap-3">
+              <a href="https://github.com/BlitzCache/blitzcache" className="flex items-center gap-3">
                 <GitBranch className="h-6 w-6" />
                 View on GitHub
               </a>
@@ -52,11 +52,11 @@ export function CTA() {
 
           <div className="mt-12 pt-8 border-t border-white/20">
             <p className="text-white/80">
-              <a href="https://github.com/ersinkoc/blitz-cache/blob/main/docs/installation.md" className="underline hover:text-white transition-colors font-medium">
+              <a href="https://github.com/BlitzCache/blitzcache/blob/main/docs/installation.md" className="underline hover:text-white transition-colors font-medium">
                 Installation Guide
               </a>
               <span className="mx-3">•</span>
-              <a href="https://github.com/ersinkoc/blitz-cache/issues" className="underline hover:text-white transition-colors font-medium">
+              <a href="https://github.com/BlitzCache/blitzcache/issues" className="underline hover:text-white transition-colors font-medium">
                 Report Issues
               </a>
             </p>

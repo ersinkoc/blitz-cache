@@ -3,7 +3,7 @@
 [![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue.svg)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg)](https://php.net/)
 [![License](https://img.shields.io/badge/License-GPLv2-green.svg)](LICENSE)
-[![Tests](https://github.com/ersinkoc/blitz-cache/workflows/Tests/badge.svg)](https://github.com/ersinkoc/blitz-cache/actions)
+[![Tests](https://github.com/BlitzCache/blitzcache/workflows/Tests/badge.svg)](https://github.com/BlitzCache/blitzcache/actions)
 [![codecov](https://codecov.io/gh/ersinkoc/blitz-cache/branch/main/graph/badge.svg)](https://codecov.io/gh/ersinkoc/blitz-cache)
 
 > **Zero-config WordPress caching with Cloudflare Edge integration.** Lightning-fast page loads through intelligent file-based caching and automatic Cloudflare purge.
@@ -89,7 +89,7 @@
 #### Method 2: GitHub
 ```bash
 # Download latest release
-wget https://github.com/ersinkoc/blitz-cache/archive/main.zip
+wget https://github.com/BlitzCache/blitzcache/archive/main.zip
 
 # Extract to plugins directory
 unzip main.zip -d /path/to/wordpress/wp-content/plugins/
@@ -99,7 +99,7 @@ unzip main.zip -d /path/to/wordpress/wp-content/plugins/
 
 #### Method 3: WP-CLI
 ```bash
-wp plugin install https://github.com/ersinkoc/blitz-cache/archive/main.zip --activate
+wp plugin install https://github.com/BlitzCache/blitzcache/archive/main.zip --activate
 ```
 
 ### Cloudflare Setup (Optional)
@@ -367,7 +367,7 @@ define('BLITZ_CACHE_DEBUG', true);
 We welcome contributions! Here's how:
 
 ### Bug Reports
-Use [GitHub Issues](https://github.com/ersinkoc/blitz-cache/issues) with:
+Use [GitHub Issues](https://github.com/BlitzCache/blitzcache/issues) with:
 - Clear description
 - Steps to reproduce
 - Expected vs actual behavior
@@ -375,7 +375,7 @@ Use [GitHub Issues](https://github.com/ersinkoc/blitz-cache/issues) with:
 - Screenshot (if applicable)
 
 ### Feature Requests
-Use [GitHub Issues](https://github.com/ersinkoc/blitz-cache/issues) with:
+Use [GitHub Issues](https://github.com/BlitzCache/blitzcache/issues) with:
 - Clear use case
 - Proposed implementation
 - Alternative solutions considered
@@ -392,7 +392,7 @@ Use [GitHub Issues](https://github.com/ersinkoc/blitz-cache/issues) with:
 ### Development Setup
 ```bash
 # Clone repo
-git clone https://github.com/ersinkoc/blitz-cache.git
+git clone https://github.com/BlitzCache/blitzcache.git
 cd blitz-cache
 
 # Install dependencies
@@ -477,7 +477,7 @@ Built with ❤️ for the WordPress community.
 
 Need help? We're here!
 
-- **GitHub Issues:** [Create an issue](https://github.com/ersinkoc/blitz-cache/issues)
+- **GitHub Issues:** [Create an issue](https://github.com/BlitzCache/blitzcache/issues)
 
 ## ⭐ Show Your Support
 
@@ -495,7 +495,7 @@ If Blitz Cache helps you speed up your site, please:
 
 ### 🏆 Awards
 
-[![Zero Config](https://img.shields.io/badge/Philosophy-Zero%20Configuration-blue.svg)](https://github.com/ersinkoc/blitz-cache)
+[![Zero Config](https://img.shields.io/badge/Philosophy-Zero%20Configuration-blue.svg)](https://github.com/BlitzCache/blitzcache)
 
 ---
 

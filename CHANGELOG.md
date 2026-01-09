@@ -277,10 +277,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
 
 ## Links
 
-- **Repository**: https://github.com/ersinkoc/blitz-cache
-- **Documentation**: https://github.com/ersinkoc/blitz-cache/tree/main/docs
-- **Issues**: https://github.com/ersinkoc/blitz-cache/issues
-- **Discussions**: https://github.com/ersinkoc/blitz-cache/discussions
+- **Repository**: https://github.com/BlitzCache/blitzcache
+- **Documentation**: https://github.com/BlitzCache/blitzcache/tree/main/docs
+- **Issues**: https://github.com/BlitzCache/blitzcache/issues
+- **Discussions**: https://github.com/BlitzCache/blitzcache/discussions
 
 ---
 

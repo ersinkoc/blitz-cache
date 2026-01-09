@@ -834,7 +834,7 @@ Review settings monthly:
 - [Troubleshooting](troubleshooting.md)
 
 ### Support
-- [GitHub Issues](https://github.com/ersinkoc/blitz-cache/issues)
+- [GitHub Issues](https://github.com/BlitzCache/blitzcache/issues)
 - [WordPress.org Forum](https://wordpress.org/support/plugin/blitz-cache)
 
 ---

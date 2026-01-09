@@ -130,7 +130,7 @@ Screenshots, mockups, or other context.
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/ersinkoc/blitz-cache.git
+git clone https://github.com/BlitzCache/blitzcache.git
 cd blitz-cache
 ```
 

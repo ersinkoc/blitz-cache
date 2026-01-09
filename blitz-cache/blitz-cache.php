@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Blitz Cache
- * Plugin URI: https://github.com/ersinkoc/blitz-cache
+ * Plugin URI: https://github.com/BlitzCache/blitzcache
  * Description: Zero-config WordPress caching with Cloudflare Edge integration.
  * Version: 1.0.0
  * Requires at least: 6.0

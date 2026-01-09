@@ -45,10 +45,10 @@ export function Navigation() {
         <div className="hidden md:flex items-center space-x-3 absolute right-0 pr-4">
           <ThemeToggle />
           <Button variant="ghost" size="sm" asChild>
-            <a href="https://github.com/ersinkoc/blitz-cache/tree/main/docs">Docs</a>
+            <a href="https://github.com/BlitzCache/blitzcache/tree/main/docs">Docs</a>
           </Button>
           <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white border-0" asChild>
-            <a href="https://github.com/ersinkoc/blitz-cache/releases">
+            <a href="https://github.com/BlitzCache/blitzcache/releases">
               <Bolt className="h-4 w-4 mr-2" />
               Get Started
             </a>
@@ -93,10 +93,10 @@ export function Navigation() {
             ))}
             <div className="pt-4 space-y-2">
               <Button variant="outline" className="w-full" asChild>
-                <a href="https://github.com/ersinkoc/blitz-cache/tree/main/docs">Documentation</a>
+                <a href="https://github.com/BlitzCache/blitzcache/tree/main/docs">Documentation</a>
               </Button>
               <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-0" asChild>
-                <a href="https://github.com/ersinkoc/blitz-cache/releases">Get Started</a>
+                <a href="https://github.com/BlitzCache/blitzcache/releases">Get Started</a>
               </Button>
             </div>
           </div>
