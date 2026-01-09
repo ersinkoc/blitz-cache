@@ -1,0 +1,40 @@
+parameters:
+    level: 9
+    paths:
+        - includes
+        - admin
+    excludePaths:
+        - vendor
+        - tests
+        - node_modules
+    checkMissingIterableValueType: false
+    polluteScopeWithAlwaysIterableForeach: false
+    reportUnmatchedIgnoredErrors: false
+    checkGenericClassInNonGenericObjectType: false
+    checkUninitializedProperties: true
+    checkDynamicProperties: true
+    checkAlwaysTrueCheckType: false
+    checkAlwaysTrueInstanceof: false
+    checkAlwaysTrueStrictComparison: false
+    checkExplicitMixedMissingReturn: true
+    checkFunctionNameCase: false
+    checkInternalClassCaseSensitivity: false
+    checkTooWideReturnTypesInProtectedAndPublicMethods: false
+    discovery: %currentWorkingDirectory%/phpstan.dist.neon
+    inferPrivatePropertyTypeFromConstructor: true
+    treatPhpDocTypesAsCertain: false
+    checkUnannotated: false
+    reportMaybesInMethodSignatures: false
+    reportStaticMethodSignatures: false
+    dynamicStaticMethods: ['Blitz_Cache_Options::*', 'Blitz_Cache_Options::get_*']
+    universalObjectCratesClasses:
+        - stdClass
+        - WP_Post
+        - WP_User
+        - WP_Error
+    typeAliases:
+        HtmlString: string
+    excludePaths:
+        - includes/integrations/*
+    bootstrap: %currentWorkingDirectory%/phpstan-bootstrap.php
+    memoryLimit: 2G

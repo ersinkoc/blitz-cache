@@ -1,0 +1,189 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.0, 8.1, 8.2, 8.3]
+        wordpress: [latest]
+        include:
+          - php: 8.0
+            wordpress: 6.0
+
+    name: PHP ${{ matrix.php }} - WordPress ${{ matrix.wordpress }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        tools: composer:v2
+        extensions: openssl, curl, mbstring, zip, gd, xml, ctype, json, iconv
+
+    - name: Setup WordPress Test Suite
+      run: |
+        # Download WordPress test suite
+        wget -q https://develop.svn.wordpress.org/tags/6.4/wp-tests-config-sample.php
+        cp wp-tests-config-sample.php wp-tests-config.php
+
+        # Create WordPress test database
+        mysql -e 'CREATE DATABASE wordpress_test;'
+        mysql -e 'GRANT ALL PRIVILEGES ON wordpress_test.* TO "root"@"localhost"; FLUSH PRIVILEGES;'
+
+        # Update test config
+        sed -i "s/mysql:dbname=wp_unittest;/mysql:dbname=wordpress_test;/g" wp-tests-config.php
+        sed -i "s/you_username_here/root/g" wp-tests-config.php
+        sed -i "s/your_password_here//g" wp-tests-config.php
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run PHP CodeSniffer
+      run: vendor/bin/phpcs --standard=WordPress-Core --extensions=php --ignore=*/vendor/*,*/node_modules/* .
+
+    - name: Run PHPUnit tests
+      run: vendor/bin/phpunit --coverage-clover=coverage.xml
+
+    - name: Upload coverage to Codecov
+      if: matrix.php == '8.1'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.1]
+
+    name: End-to-End Tests (PHP ${{ matrix.php }})
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run integration tests
+      run: |
+        # Create tests/wordpress directory
+        mkdir -p tests/wordpress
+
+        # Download WordPress
+        wget -q https://wordpress.org/latest.tar.gz
+        tar xzf latest.tar.gz
+
+        # Setup WordPress for testing
+        cp tests/bootstrap.php tests/wordpress/
+        sed -i "s|/tmp/wordpress/|$(pwd)/wordpress/|g" tests/wordpress/bootstrap.php
+
+        # Run tests
+        vendor/bin/phpunit tests/Integration/
+
+  security:
+    runs-on: ubuntu-latest
+    name: Security Checks
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.1
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run security checks
+      run: |
+        # Check for known security vulnerabilities
+        composer audit
+
+        # Run PHPStan for static analysis
+        vendor/bin/phpstan analyse --memory-limit=1G
+
+  performance:
+    runs-on: ubuntu-latest
+    name: Performance Benchmarks
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.1
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run performance tests
+      run: |
+        vendor/bin/phpunit tests/Performance/ --log-junit performance.xml
+
+    - name: Upload performance results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Performance Test Results
+        path: performance.xml
+        reporter: java-junit
+
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.1
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run PHPStan (Static Analysis)
+      run: vendor/bin/phpstan analyse --level=max --memory-limit=1G
+
+    - name: Run PHP_CodeSniffer (WordPress Standards)
+      run: |
+        vendor/bin/phpcs --standard=WordPress-Core,WordPress-Docs --extensions=php --ignore=*/vendor/*,*/node_modules/*,*/tests/* .
+
+    - name: Run PHP_CodeSniffer (Coding Standards)
+      run: |
+        vendor/bin/phpcs --standard=PSR12 --extensions=php --ignore=*/vendor/*,*/node_modules/*,*/tests/* .
+
+    - name: Check for TODO/FIXME comments
+      run: |
+        if grep -r "TODO\|FIXME" --include="*.php" .; then
+          echo "TODO or FIXME comments found"
+          exit 1
+        fi

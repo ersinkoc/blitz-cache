@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://cs.symfony.com/schema/phpcs/phpcs.xsd"
+         name="Blitz Cache"
+         namespace="BlitzCache">
+    <description>PHP CodeSniffer configuration for Blitz Cache plugin</description>
+
+    <!-- Display progress and full report -->
+    <arg value="p"/>
+    <arg name="colors"/>
+
+    <!-- Use WordPress Coding Standards -->
+    <rule ref="WordPress"/>
+    <rule ref="WordPress-Core"/>
+    <rule ref="WordPress-Docs"/>
+    <rule ref="WordPress-Extra"/>
+
+    <!-- Custom rules for Blitz Cache -->
+    <rule name="Generic.Arrays.DisallowShortArraySyntax">
+        <severity>5</severity>
+    </rule>
+
+    <rule name="Squiz.WhiteSpace.SuperfluousWhitespace">
+        <properties>
+            <property name="ignoreBlankLines" value="false"/>
+        </properties>
+    </rule>
+
+    <!-- Allow short arrays for performance -->
+    <rule ref="Generic.Arrays.DisallowShortArraySyntax">
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+    </rule>
+
+    <!-- Whitespace rules -->
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.StartFile"/>
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndFile"/>
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines"/>
+    <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
+
+    <!-- Line length - WordPress recommends 80 chars, we use 120 -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="150"/>
+        </properties>
+    </rule>
+
+    <!-- Class names should use PascalCase -->
+    <rule ref="Squiz.Classes.ValidClassName"/>
+
+    <!-- Function names should use snake_case -->
+    <rule ref="Generic.NamingConventions.UpperCaseConstantName"/>
+
+    <!-- Method names should use snake_case -->
+    <rule ref="Squiz.NamingConventions.ValidFunctionName"/>
+
+    <!-- Variable names should use snake_case -->
+    <rule ref="Generic.NamingConventions.ValidVariableName"/>
+
+    <!-- Ensure proper spacing after keywords -->
+    <rule ref="Squiz.WhiteSpace.LanguageConstructSpacing"/>
+
+    <!-- Ensure no space before opening parenthesis -->
+    <rule ref="Generic.Functions.FunctionCallSpacing"/>
+    <rule ref="Generic.Functions.FunctionClosingBraceSpacing"/>
+
+    <!-- Ensure proper spacing around operators -->
+    <rule ref="Squiz.WhiteSpace.OperatorSpacing"/>
+
+    <!-- Ensure proper spacing around commas -->
+    <rule ref="Squiz.WhiteSpace.CommaSpacing"/>
+
+    <!-- Ensure proper spacing around array brackets -->
+    <rule ref="Squiz.Arrays.ArrayBracketSpacing"/>
+
+    <!-- Exclude files from checks -->
+    <exclude name="*/vendor/*"/>
+    <exclude name="*/node_modules/*"/>
+    <exclude name="*/tests/*"/>
+    <exclude name="*/coverage/*"/>
+    <exclude name="*/.git/*"/>
+    <exclude name="*/dist/*"/>
+    <exclude name="*/build/*"/>
+
+    <!-- Include specific files -->
+    <arg name="extensions" value="php"/>
+    <file>admin</file>
+    <file>includes</file>
+    <file>blitz-cache.php</file>
+    <file>uninstall.php</file>
+    <file>advanced-cache.php</file>
+
+    <!-- Custom sniffs -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="blitz_cache"/>
+                <element value="blitz_"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Allow global constants to be uppercase -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals"/>
+    </rule>
+
+    <!-- Internationalization rules -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array" value="blitz-cache"/>
+        </properties>
+    </rule>
+
+    <!-- Escape output -->
+    <rule ref="WordPress.Security.EscapeOutput"/>
+
+    <!-- Validate escaped output -->
+    <rule ref="WordPress.Security.ValidatedSanitizedInput"/>
+
+    <!-- SQL injection prevention -->
+    <rule ref="WordPress.DB.DirectDatabaseQuery"/>
+
+    <!-- Unused variables -->
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+    <rule ref="Generic.CodeAnalysis.UnusedVariable"/>
+
+    <!-- Deprecated functions -->
+    <rule ref="Generic.PHP.DeprecatedFunctions"/>
+
+    <!-- PSR-12 rules -->
+    <rule ref="PSR12"/>
+    <rule ref="PSR12.Classes.ClassInstantiation"/>
+    <rule ref="PSR12.Classes.ClassOpeningBrace"/>
+    <rule ref="PSR12.Classes.closingBrace"/>
+    <rule ref="PSR12.ControlStructures.BooleanOperatorPlacement"/>
+    <rule ref="PSR12.Files.FileHeader"/>
+    <rule ref="PSR12.Files.ImportStatement"/>
+    <rule ref="PSR12.Files.OpenTag"/>
+    <rule ref="PSR12.Files.SideEffects"/>
+    <rule ref="PSR12.Functions.OpeningFunctionBrace"/>
+    <rule ref="PSR12.Functions.ReturnTypeDeclaration"/>
+    <rule ref="PSR12.Methods.MethodDeclaration"/>
+    <rule ref="PSR12.Operators.OperatorSpacing"/>
+    <rule ref="PSR12.Traits.UseDeclaration"/>
+
+    <!-- Custom message formats -->
+    <arg name="report" value="full"/>
+    <arg name="report" value="summary"/>
+    <arg name="report" value="diff"/>
+
+    <!-- Cache -->
+    <arg name="cache" value=".phpcs-cache"/>
+
+</ruleset>
