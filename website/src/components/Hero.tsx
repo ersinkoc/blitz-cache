@@ -1,10 +1,10 @@
-import { ArrowRight, Download, Github, Star } from "lucide-react"
+import { Download, GitBranch, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-background py-20 md:py-32">
+    <section className="relative overflow-hidden bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/50 dark:to-background py-20 md:py-32">
       <div className="absolute inset-0 bg-grid dark:bg-grid-white/[0.02] bg-[size:20px_20px]" />
 
       <div className="container relative mx-auto max-w-6xl px-4">
@@ -13,16 +13,16 @@ export function Hero() {
             🚀 Version 1.0.0 Released
           </Badge>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-            Lightning-Fast
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground">
+            File-Based
             <br />
             <span className="gradient-text">WordPress Caching</span>
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Zero-config WordPress caching with Cloudflare Edge integration.
-            Boost your site's performance by 10x with intelligent file-based caching,
-            automatic purging, and seamless Cloudflare sync.
+            High-performance page caching for WordPress with automatic purging.
+            Cache HTML pages, minify CSS/JS, enable gzip compression, and integrate with Cloudflare.
+            Zero configuration required.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -34,7 +34,7 @@ export function Hero() {
             </Button>
             <Button size="lg" variant="outline" className="gap-2">
               <a href="https://github.com/ersinkoc/blitz-cache">
-                <Github className="h-5 w-5" />
+                <GitBranch className="h-5 w-5" />
                 View on GitHub
               </a>
             </Button>
@@ -44,7 +44,7 @@ export function Hero() {
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
             ))}
-            <span className="ml-2 text-sm font-medium">4.9/5 from 1,000+ developers</span>
+            <span className="ml-2 text-sm font-medium text-foreground">4.9/5 from 1,000+ developers</span>
           </div>
 
           <div className="flex flex-wrap gap-4 justify-center items-center text-sm text-muted-foreground">
@@ -83,28 +83,28 @@ export function Hero() {
                 <div className="bg-muted/50 rounded-lg p-8 font-mono text-sm">
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span>Cache Hits:</span>
-                      <span className="text-green-600 font-bold">98.5%</span>
+                      <span>Cache Status:</span>
+                      <span className="text-green-600 font-bold">Active</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Pages Cached:</span>
-                      <span className="text-blue-600 font-bold">1,247</span>
+                      <span>Cache Directory:</span>
+                      <span className="text-blue-600 font-bold">/wp-content/cache/blitz-cache</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Cache Size:</span>
-                      <span className="text-purple-600 font-bold">245 MB</span>
+                      <span>Gzip Compression:</span>
+                      <span className="text-purple-600 font-bold">Enabled</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Bandwidth Saved:</span>
-                      <span className="text-orange-600 font-bold">8.7 GB</span>
+                      <span>Auto Purge:</span>
+                      <span className="text-orange-600 font-bold">On Content Change</span>
                     </div>
                     <div className="border-t my-4 pt-4">
                       <div className="flex justify-between">
-                        <span>Average Load Time:</span>
-                        <span className="text-green-600 font-bold">0.12s</span>
+                        <span>Minification:</span>
+                        <span className="text-green-600 font-bold">CSS + JS</span>
                       </div>
                       <div className="text-xs text-muted-foreground mt-2">
-                        ↓ 94% faster than without caching
+                        Cloudflare integration available
                       </div>
                     </div>
                   </div>

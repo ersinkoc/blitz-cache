@@ -1,4 +1,4 @@
-import { ArrowRight, Download, Github } from "lucide-react"
+import { Download, GitBranch } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function CTA() {
@@ -6,11 +6,11 @@ export function CTA() {
     <section className="py-20 md:py-32 bg-gradient-to-b from-purple-600 to-blue-600 text-white">
       <div className="container mx-auto max-w-4xl px-4 text-center">
         <h2 className="text-3xl md:text-5xl font-bold mb-6">
-          Ready to Speed Up Your WordPress Site?
+          Cache Your WordPress Site in Seconds
         </h2>
         <p className="text-lg md:text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-          Join thousands of developers who have transformed their WordPress performance with Blitz Cache.
-          It's free, it's fast, and it works.
+          Install Blitz Cache and start caching your pages immediately.
+          File-based caching, automatic purging, gzip compression, and Cloudflare integration.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
@@ -22,7 +22,7 @@ export function CTA() {
           </Button>
           <Button size="lg" variant="outline" className="gap-2 bg-transparent border-white text-white hover:bg-white hover:text-purple-600">
             <a href="https://github.com/ersinkoc/blitz-cache">
-              <Github className="h-5 w-5" />
+              <GitBranch className="h-5 w-5" />
               View on GitHub
             </a>
           </Button>
