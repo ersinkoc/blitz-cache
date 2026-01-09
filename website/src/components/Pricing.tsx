@@ -1,5 +1,3 @@
-"use client"
-
 import { Check, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -86,7 +84,6 @@ export function Pricing() {
                 <Button
                   className={`w-full ${plan.popular ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' : ''}`}
                   variant={plan.popular ? "default" : "outline"}
-                  asChild
                 >
                   <a href={plan.href} target="_blank" rel="noopener noreferrer">
                     {plan.cta}

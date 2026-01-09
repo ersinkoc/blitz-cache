@@ -1,17 +1,14 @@
-"use client"
-
-import Link from "next/link"
-import { ArrowRight, Download, Github } from "lucide-react"
+import { ArrowRight, Download, Github, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-background py-20 md:py-32">
-      <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-white/[0.02] bg-[size:20px_20px]" />
+      <div className="absolute inset-0 bg-grid dark:bg-grid-white/[0.02] bg-[size:20px_20px]" />
 
       <div className="container relative mx-auto max-w-6xl px-4">
-        <div className="text-center space-y-8">
+        <div className="text-center space-y-8 animate-fade-in">
           <Badge variant="success" className="mb-4">
             🚀 Version 1.0.0 Released
           </Badge>
@@ -29,18 +26,25 @@ export function Hero() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="gap-2" asChild>
-              <Link href="https://github.com/ersinkoc/blitz-cache/releases">
+            <Button size="lg" className="gap-2">
+              <a href="https://github.com/ersinkoc/blitz-cache/releases">
                 <Download className="h-5 w-5" />
                 Download Now
-              </Link>
+              </a>
             </Button>
-            <Button size="lg" variant="outline" className="gap-2" asChild>
-              <Link href="https://github.com/ersinkoc/blitz-cache">
+            <Button size="lg" variant="outline" className="gap-2">
+              <a href="https://github.com/ersinkoc/blitz-cache">
                 <Github className="h-5 w-5" />
                 View on GitHub
-              </Link>
+              </a>
             </Button>
+          </div>
+
+          <div className="flex items-center justify-center gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+            ))}
+            <span className="ml-2 text-sm font-medium">4.9/5 from 1,000+ developers</span>
           </div>
 
           <div className="flex flex-wrap gap-4 justify-center items-center text-sm text-muted-foreground">

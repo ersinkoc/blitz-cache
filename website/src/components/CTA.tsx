@@ -1,6 +1,3 @@
-"use client"
-
-import Link from "next/link"
 import { ArrowRight, Download, Github } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -17,17 +14,17 @@ export function CTA() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-          <Button size="lg" variant="secondary" className="gap-2" asChild>
-            <Link href="https://github.com/ersinkoc/blitz-cache/releases">
+          <Button size="lg" variant="secondary" className="gap-2">
+            <a href="https://github.com/ersinkoc/blitz-cache/releases">
               <Download className="h-5 w-5" />
               Download Blitz Cache
-            </Link>
+            </a>
           </Button>
-          <Button size="lg" variant="outline" className="gap-2 bg-transparent border-white text-white hover:bg-white hover:text-purple-600" asChild>
-            <Link href="https://github.com/ersinkoc/blitz-cache">
+          <Button size="lg" variant="outline" className="gap-2 bg-transparent border-white text-white hover:bg-white hover:text-purple-600">
+            <a href="https://github.com/ersinkoc/blitz-cache">
               <Github className="h-5 w-5" />
               View on GitHub
-            </Link>
+            </a>
           </Button>
         </div>
 
@@ -53,9 +50,9 @@ export function CTA() {
         <div className="mt-12 text-sm opacity-60">
           <p>
             Need help getting started?{" "}
-            <Link href="https://github.com/ersinkoc/blitz-cache/blob/main/docs/installation.md" className="underline hover:opacity-80">
+            <a href="https://github.com/ersinkoc/blitz-cache/blob/main/docs/installation.md" className="underline hover:opacity-80">
               View our installation guide
-            </Link>
+            </a>
           </p>
         </div>
       </div>

@@ -1,6 +1,3 @@
-"use client"
-
-import Link from "next/link"
 import { Github, Twitter, Mail, Zap } from "lucide-react"
 
 export function Footer() {
@@ -44,10 +41,10 @@ export function Footer() {
       <div className="container mx-auto max-w-6xl px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center space-x-2 mb-4">
+            <a href="/" className="flex items-center space-x-2 mb-4">
               <Zap className="h-6 w-6 text-purple-600" />
               <span className="font-bold text-xl">Blitz Cache</span>
-            </Link>
+            </a>
             <p className="text-sm text-muted-foreground mb-4 max-w-sm">
               Lightning-fast WordPress caching with Cloudflare integration.
               Zero configuration, maximum performance.
@@ -73,12 +70,12 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.product.map((link, index) => (
                 <li key={index}>
-                  <Link
+                  <a
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-purple-600 transition-colors"
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -55,6 +56,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
   }
 }
 
@@ -66,5 +68,12 @@
 
   .gradient-bg {
     @apply bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500;
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, hsl(var(--muted) / 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--muted) / 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 }
