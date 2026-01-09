@@ -58,53 +58,108 @@ export function Hero() {
           </div>
 
           <div className="relative lg:ml-10">
-            <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-3xl blur-2xl" />
-            <div className="relative rounded-2xl border-2 border-border bg-card p-8 shadow-2xl">
-              <div className="space-y-6">
+            <div className="absolute -inset-6 bg-gradient-to-r from-emerald-500/30 via-cyan-500/30 to-blue-500/30 rounded-3xl blur-3xl" />
+            <div className="relative rounded-3xl border border-border/50 bg-card/95 backdrop-blur-sm p-8 shadow-2xl">
+              <div className="space-y-8">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">B</span>
+                  <div className="flex items-center gap-4">
+                    <div className="h-14 w-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                      <span className="text-white font-black text-2xl">⚡</span>
                     </div>
                     <div>
-                      <div className="font-bold text-lg">Blitz Cache</div>
-                      <div className="text-xs text-muted-foreground">Active & Running</div>
+                      <div className="font-black text-2xl bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">Blitz Cache</div>
+                      <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        Active & Running
+                      </div>
                     </div>
                   </div>
-                  <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="text-right">
+                    <div className="text-sm text-muted-foreground">Performance Score</div>
+                    <div className="text-3xl font-black text-emerald-600">98.5</div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-xl bg-emerald-500/10 p-4 border border-emerald-500/20">
-                    <div className="text-2xl font-bold text-emerald-600">98.5%</div>
-                    <div className="text-xs text-muted-foreground">Cache Hit Rate</div>
+                  <div className="rounded-2xl bg-gradient-to-br from-emerald-500/15 to-emerald-600/5 p-5 border border-emerald-500/20 hover:border-emerald-500/40 transition-all">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Cache Hits</span>
+                      <span className="text-2xl">🎯</span>
+                    </div>
+                    <div className="text-3xl font-black text-emerald-600">98.5%</div>
+                    <div className="mt-2 h-1.5 rounded-full bg-emerald-500/20">
+                      <div className="h-full w-[98.5%] rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600" />
+                    </div>
                   </div>
-                  <div className="rounded-xl bg-cyan-500/10 p-4 border border-cyan-500/20">
-                    <div className="text-2xl font-bold text-cyan-600">0.12s</div>
-                    <div className="text-xs text-muted-foreground">Avg Load Time</div>
+
+                  <div className="rounded-2xl bg-gradient-to-br from-cyan-500/15 to-cyan-600/5 p-5 border border-cyan-500/20 hover:border-cyan-500/40 transition-all">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-cyan-700 dark:text-cyan-400">Load Time</span>
+                      <span className="text-2xl">⚡</span>
+                    </div>
+                    <div className="text-3xl font-black text-cyan-600">0.12s</div>
+                    <div className="mt-2 h-1.5 rounded-full bg-cyan-500/20">
+                      <div className="h-full w-[95%] rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600" />
+                    </div>
                   </div>
-                  <div className="rounded-xl bg-blue-500/10 p-4 border border-blue-500/20">
-                    <div className="text-2xl font-bold text-blue-600">245 MB</div>
-                    <div className="text-xs text-muted-foreground">Cache Size</div>
+
+                  <div className="rounded-2xl bg-gradient-to-br from-blue-500/15 to-blue-600/5 p-5 border border-blue-500/20 hover:border-blue-500/40 transition-all">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Cache Size</span>
+                      <span className="text-2xl">💾</span>
+                    </div>
+                    <div className="text-3xl font-black text-blue-600">245 MB</div>
+                    <div className="mt-2 h-1.5 rounded-full bg-blue-500/20">
+                      <div className="h-full w-[75%] rounded-full bg-gradient-to-r from-blue-500 to-blue-600" />
+                    </div>
                   </div>
-                  <div className="rounded-xl bg-indigo-500/10 p-4 border border-indigo-500/20">
-                    <div className="text-2xl font-bold text-indigo-600">1,247</div>
-                    <div className="text-xs text-muted-foreground">Pages Cached</div>
+
+                  <div className="rounded-2xl bg-gradient-to-br from-indigo-500/15 to-indigo-600/5 p-5 border border-indigo-500/20 hover:border-indigo-500/40 transition-all">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-indigo-700 dark:text-indigo-400">Pages Cached</span>
+                      <span className="text-2xl">📄</span>
+                    </div>
+                    <div className="text-3xl font-black text-indigo-600">1,247</div>
+                    <div className="mt-2 h-1.5 rounded-full bg-indigo-500/20">
+                      <div className="h-full w-[85%] rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600" />
+                    </div>
                   </div>
                 </div>
 
-                <div className="rounded-lg bg-muted/50 p-4 font-mono text-sm space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Status</span>
-                    <span className="text-emerald-500 font-bold">● Active</span>
+                <div className="rounded-2xl bg-gradient-to-r from-muted/50 to-muted/30 p-6 border border-border/50">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-sm font-medium">System Status</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Gzip</span>
-                    <span className="text-cyan-500 font-bold">Enabled</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Auto Purge</span>
-                    <span className="text-blue-500 font-bold">On Change</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        Cache Status
+                      </span>
+                      <span className="text-sm font-bold text-emerald-600">● Active</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
+                        GZIP Compression
+                      </span>
+                      <span className="text-sm font-bold text-cyan-600">✓ Enabled</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                        Auto Purge
+                      </span>
+                      <span className="text-sm font-bold text-blue-600">On Change</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                        Cloudflare Sync
+                      </span>
+                      <span className="text-sm font-bold text-indigo-600">Connected</span>
+                    </div>
                   </div>
                 </div>
               </div>
