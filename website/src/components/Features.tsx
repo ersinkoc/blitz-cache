@@ -81,7 +81,7 @@ export function Features() {
       <div className="container mx-auto max-w-6xl px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Everything You Need for <span className="gradient-text">Lightning Speed</span>
+            Everything You Need for <span className="text-emerald-600">Lightning Speed</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Blitz Cache combines the best caching strategies with modern web technologies
@@ -91,9 +91,9 @@ export function Features() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature, index) => (
-            <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-emerald-500/20">
+            <Card key={index} className="group hover:shadow-lg transition-all duration-300 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700">
               <CardHeader>
-                <div className={`inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r ${feature.gradient} text-white mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-slate-900 text-white mb-4 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <CardTitle className="text-xl">{feature.title}</CardTitle>
@@ -109,19 +109,19 @@ export function Features() {
 
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
-            <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">10x</div>
+            <div className="text-3xl md:text-4xl font-bold text-emerald-600 mb-2">10x</div>
             <div className="text-sm text-muted-foreground">Faster Load Times</div>
           </div>
           <div>
-            <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">80%</div>
+            <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">80%</div>
             <div className="text-sm text-muted-foreground">Bandwidth Saved</div>
           </div>
           <div>
-            <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">98%+</div>
+            <div className="text-3xl md:text-4xl font-bold text-purple-600 mb-2">98%+</div>
             <div className="text-sm text-muted-foreground">Cache Hit Ratio</div>
           </div>
           <div>
-            <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">0</div>
+            <div className="text-3xl md:text-4xl font-bold text-slate-700 mb-2">0</div>
             <div className="text-sm text-muted-foreground">Configuration Needed</div>
           </div>
         </div>

@@ -18,13 +18,13 @@ export function Navigation() {
       <div className="container flex h-20 items-center justify-center">
         <div className="flex items-center space-x-8">
           <a href="/" className="flex items-center space-x-3 group">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="h-10 w-10 rounded-xl bg-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
               <Bolt className="h-6 w-6 text-white" />
             </div>
             <div className="flex flex-col">
               <span className="font-black text-xl leading-tight">
                 <span className="text-foreground">Blitz</span>
-                <span className="bg-gradient-to-r from-emerald-500 to-cyan-500 bg-clip-text text-transparent"> Cache</span>
+                <span className="text-emerald-600"> Cache</span>
               </span>
             </div>
           </a>
@@ -47,7 +47,7 @@ export function Navigation() {
           <Button variant="ghost" size="sm" asChild>
             <a href="https://github.com/ersinkoc/blitz-cache/tree/main/docs">Docs</a>
           </Button>
-          <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white border-0" asChild>
+          <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white border-0" asChild>
             <a href="https://github.com/ersinkoc/blitz-cache/releases">
               <Bolt className="h-4 w-4 mr-2" />
               Get Started
@@ -72,12 +72,12 @@ export function Navigation() {
           <div className="container py-4 space-y-3">
             <div className="flex items-center justify-center space-x-3 pb-4 border-b border-border">
               <a href="/" className="flex items-center space-x-2 group" onClick={() => setIsOpen(false)}>
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <div className="h-8 w-8 rounded-lg bg-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
                   <Bolt className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-black text-lg leading-tight">
                   <span className="text-foreground">Blitz</span>
-                  <span className="bg-gradient-to-r from-emerald-500 to-cyan-500 bg-clip-text text-transparent"> Cache</span>
+                  <span className="text-emerald-600"> Cache</span>
                 </span>
               </a>
             </div>
@@ -95,7 +95,7 @@ export function Navigation() {
               <Button variant="outline" className="w-full" asChild>
                 <a href="https://github.com/ersinkoc/blitz-cache/tree/main/docs">Documentation</a>
               </Button>
-              <Button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white border-0" asChild>
+              <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-0" asChild>
                 <a href="https://github.com/ersinkoc/blitz-cache/releases">Get Started</a>
               </Button>
             </div>

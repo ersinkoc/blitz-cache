@@ -7,7 +7,7 @@ export function Pricing() {
       <div className="container mx-auto max-w-6xl px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Why Is It <span className="bg-gradient-to-r from-emerald-500 to-cyan-500 bg-clip-text text-transparent">Always Free</span>?
+            Why Is It <span className="text-emerald-600">Always Free</span>?
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Blitz Cache is free because we believe performance should be accessible to everyone.
@@ -15,9 +15,9 @@ export function Pricing() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <Card className="border-2 hover:border-emerald-500/20 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 hover:shadow-lg">
             <CardContent className="pt-8 text-center">
-              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-white mb-6">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600 text-white mb-6">
                 <Heart className="h-8 w-8" />
               </div>
               <h3 className="text-xl font-bold mb-4">Built by Developers, for Developers</h3>
@@ -28,9 +28,9 @@ export function Pricing() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-cyan-500/20 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 hover:shadow-lg">
             <CardContent className="pt-8 text-center">
-              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white mb-6">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-900 text-white mb-6">
                 <Zap className="h-8 w-8" />
               </div>
               <h3 className="text-xl font-bold mb-4">Open Source Commitment</h3>
@@ -41,9 +41,9 @@ export function Pricing() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-blue-500/20 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 hover:shadow-lg">
             <CardContent className="pt-8 text-center">
-              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white mb-6">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-white mb-6">
                 <Infinity className="h-8 w-8" />
               </div>
               <h3 className="text-xl font-bold mb-4">Give Back to Community</h3>
@@ -56,7 +56,7 @@ export function Pricing() {
         </div>
 
         <div className="mt-16 text-center">
-          <Card className="max-w-4xl mx-auto border-2 border-dashed border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 to-cyan-500/5">
+          <Card className="max-w-4xl mx-auto border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
             <CardContent className="pt-8">
               <div className="flex items-center justify-center gap-2 mb-6">
                 <span className="text-4xl">💚</span>
