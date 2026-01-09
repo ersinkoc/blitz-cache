@@ -1,0 +1,115 @@
+"use client"
+
+import Link from "next/link"
+import { ArrowRight, Download, Github } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+
+export function Hero() {
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-b from-purple-50 to-white dark:from-purple-950/20 dark:to-background py-20 md:py-32">
+      <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-white/[0.02] bg-[size:20px_20px]" />
+
+      <div className="container relative mx-auto max-w-6xl px-4">
+        <div className="text-center space-y-8">
+          <Badge variant="success" className="mb-4">
+            🚀 Version 1.0.0 Released
+          </Badge>
+
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
+            Lightning-Fast
+            <br />
+            <span className="gradient-text">WordPress Caching</span>
+          </h1>
+
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+            Zero-config WordPress caching with Cloudflare Edge integration.
+            Boost your site's performance by 10x with intelligent file-based caching,
+            automatic purging, and seamless Cloudflare sync.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button size="lg" className="gap-2" asChild>
+              <Link href="https://github.com/ersinkoc/blitz-cache/releases">
+                <Download className="h-5 w-5" />
+                Download Now
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="gap-2" asChild>
+              <Link href="https://github.com/ersinkoc/blitz-cache">
+                <Github className="h-5 w-5" />
+                View on GitHub
+              </Link>
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-4 justify-center items-center text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-green-500" />
+              <span>100% Free</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-blue-500" />
+              <span>Open Source</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-purple-500" />
+              <span>WordPress 6.0+</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-orange-500" />
+              <span>PHP 8.0+</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-16 md:mt-24">
+          <div className="relative mx-auto max-w-5xl">
+            <div className="absolute inset-0 bg-gradient-to-t from-purple-600/20 to-transparent rounded-2xl blur-3xl" />
+            <div className="relative rounded-2xl border bg-card p-4 shadow-xl">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-red-500" />
+                  <div className="h-3 w-3 rounded-full bg-yellow-500" />
+                  <div className="h-3 w-3 rounded-full bg-green-500" />
+                  <div className="ml-4 text-xs text-muted-foreground">
+                    blitz-cache/stats.php
+                  </div>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-8 font-mono text-sm">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Cache Hits:</span>
+                      <span className="text-green-600 font-bold">98.5%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Pages Cached:</span>
+                      <span className="text-blue-600 font-bold">1,247</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Cache Size:</span>
+                      <span className="text-purple-600 font-bold">245 MB</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Bandwidth Saved:</span>
+                      <span className="text-orange-600 font-bold">8.7 GB</span>
+                    </div>
+                    <div className="border-t my-4 pt-4">
+                      <div className="flex justify-between">
+                        <span>Average Load Time:</span>
+                        <span className="text-green-600 font-bold">0.12s</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-2">
+                        ↓ 94% faster than without caching
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
