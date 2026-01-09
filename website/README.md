@@ -1,10 +1,10 @@
 # Blitz Cache Website
 
-Modern, responsive landing page for the Blitz Cache WordPress plugin built with React 19, Vite, Tailwind CSS v4, and shadcn/ui.
+Modern, responsive landing page for the Blitz Cache WordPress plugin built with React 18, Vite, Tailwind CSS v4, and shadcn/ui.
 
 ## ✨ Features
 
-- **React 19** - Latest React with new features
+- **React 18** - Latest stable React with new features
 - **Vite** - Lightning-fast build tool
 - **Tailwind CSS v4** - Utility-first CSS framework
 - **shadcn/ui** - Beautiful, accessible components
@@ -15,7 +15,7 @@ Modern, responsive landing page for the Blitz Cache WordPress plugin built with 
 
 ## 🚀 Tech Stack
 
-- **React 19** - UI library
+- **React 18** - UI library
 - **Vite** - Build tool
 - **TypeScript** - Type safety
 - **Tailwind CSS v4** - Styling
