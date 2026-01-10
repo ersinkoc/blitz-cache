@@ -156,26 +156,142 @@ async function handleRequest(request) {
 JAVASCRIPT;
     }
 
+    /**
+     * Make HTTP request to Cloudflare API with comprehensive error handling.
+     *
+     * @param string $method   HTTP method.
+     * @param string $endpoint API endpoint.
+     * @param array  $data     Request data.
+     * @return array|\WP_Error Response data or WP_Error on failure.
+     */
     private function request(string $method, string $endpoint, array $data = []): array|\WP_Error {
         $args = [
             'method' => $method,
-            'timeout' => 30,
+            'timeout' => apply_filters('blitz_cache_cf_timeout', 30),
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->options['api_token'],
+                'Authorization' => 'Bearer ' . ($this->options['api_token'] ?? ''),
                 'Content-Type' => 'application/json',
+                'User-Agent' => 'Blitz-Cache/' . (defined('BLITZ_CACHE_VERSION') ? BLITZ_CACHE_VERSION : '1.0.0'),
             ],
         ];
 
+        // Rate limiting check
+        $rate_limit_key = 'blitz_cache_cf_rate_limit_' . md5($endpoint);
+        $rate_limit_time = get_transient($rate_limit_key);
+        if ($rate_limit_time && time() - $rate_limit_time < 60) {
+            $error = new WP_Error('rate_limit', 'Cloudflare API rate limit exceeded');
+            if (function_exists('Blitz_Cache_Logger')) {
+                Blitz_Cache_Logger::get_instance()->warning(
+                    'Cloudflare API rate limited',
+                    ['endpoint' => $endpoint]
+                );
+            }
+            return $error;
+        }
+
+        // Encode request data
         if (!empty($data)) {
-            $args['body'] = wp_json_encode($data);
+            $json_data = wp_json_encode($data);
+            if ($json_data === false) {
+                $error = new WP_Error('json_encode_failed', 'Failed to encode request data');
+                if (function_exists('Blitz_Cache_Logger')) {
+                    Blitz_Cache_Logger::get_instance()->error(
+                        'Failed to encode Cloudflare request data',
+                        ['endpoint' => $endpoint, 'data' => $data]
+                    );
+                }
+                return $error;
+            }
+            $args['body'] = $json_data;
         }
 
-        $response = wp_remote_request($this->api_url . $endpoint, $args);
+        try {
+            $response = wp_remote_request($this->api_url . $endpoint, $args);
 
-        if (is_wp_error($response)) {
-            return $response;
+            if (is_wp_error($response)) {
+                if (function_exists('Blitz_Cache_Logger')) {
+                    Blitz_Cache_Logger::get_instance()->error(
+                        'Cloudflare API request failed',
+                        [
+                            'endpoint' => $endpoint,
+                            'method' => $method,
+                            'error' => $response->get_error_message(),
+                        ]
+                    );
+                }
+                return $response;
+            }
+
+            $response_code = wp_remote_retrieve_response_code($response);
+            $response_body = wp_remote_retrieve_body($response);
+
+            // Check for rate limiting
+            if ($response_code === 429) {
+                set_transient($rate_limit_key, time(), 120);
+                if (function_exists('Blitz_Cache_Logger')) {
+                    Blitz_Cache_Logger::get_instance()->warning(
+                        'Cloudflare API rate limited (429)',
+                        ['endpoint' => $endpoint, 'method' => $method]
+                    );
+                }
+                return new WP_Error('rate_limit', 'Cloudflare API rate limited');
+            }
+
+            // Check for HTTP errors
+            if ($response_code < 200 || $response_code >= 300) {
+                if (function_exists('Blitz_Cache_Logger')) {
+                    Blitz_Cache_Logger::get_instance()->error(
+                        'Cloudflare API HTTP error',
+                        [
+                            'endpoint' => $endpoint,
+                            'method' => $method,
+                            'code' => $response_code,
+                            'body' => substr($response_body, 0, 500),
+                        ]
+                    );
+                }
+                return new WP_Error('http_error', "HTTP {$response_code} response from Cloudflare API");
+            }
+
+            // Decode JSON response
+            $decoded = json_decode($response_body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                if (function_exists('Blitz_Cache_Logger')) {
+                    Blitz_Cache_Logger::get_instance()->error(
+                        'Cloudflare API JSON decode error',
+                        [
+                            'endpoint' => $endpoint,
+                            'json_error' => json_last_error_msg(),
+                            'body' => substr($response_body, 0, 500),
+                        ]
+                    );
+                }
+                return new WP_Error('json_decode_failed', 'Failed to decode Cloudflare API response');
+            }
+
+            // Log successful request (debug level)
+            if (function_exists('Blitz_Cache_Logger')) {
+                Blitz_Cache_Logger::get_instance()->debug(
+                    'Cloudflare API request successful',
+                    ['endpoint' => $endpoint, 'method' => $method, 'code' => $response_code]
+                );
+            }
+
+            return $decoded;
+
+        } catch (Exception $e) {
+            if (function_exists('Blitz_Cache_Logger')) {
+                Blitz_Cache_Logger::get_instance()->error(
+                    'Exception in Cloudflare API request',
+                    [
+                        'endpoint' => $endpoint,
+                        'method' => $method,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]
+                );
+            }
+            return new WP_Error('exception', 'Exception during Cloudflare API request');
         }
-
-        return json_decode(wp_remote_retrieve_body($response), true);
     }
 }

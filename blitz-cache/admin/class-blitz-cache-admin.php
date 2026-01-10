@@ -62,8 +62,20 @@ class Blitz_Cache_Admin {
         ]);
     }
 
+    /**
+     * Validate and sanitize tab parameter with whitelist.
+     *
+     * @param string $tab Raw tab value from $_GET.
+     * @return string Validated tab key.
+     */
+    private function get_valid_tab(string $tab): string {
+        $allowed_tabs = ['dashboard', 'settings', 'cloudflare', 'tools'];
+        $tab = sanitize_key($tab);
+        return in_array($tab, $allowed_tabs, true) ? $tab : 'dashboard';
+    }
+
     public function render_admin_page(): void {
-        $active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'dashboard';
+        $active_tab = isset($_GET['tab']) ? $this->get_valid_tab($_GET['tab']) : 'dashboard';
         $tabs = [
             'dashboard' => __('Dashboard', 'blitz-cache'),
             'settings' => __('Settings', 'blitz-cache'),

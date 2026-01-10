@@ -100,6 +100,13 @@ require_once $plugin_dir . 'includes/class-blitz-cache-updater.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-warmup.php';
 require_once $plugin_dir . 'includes/class-blitz-cache.php';
 
+// Load new utility classes
+require_once $plugin_dir . 'includes/class-blitz-cache-exception.php';
+require_once $plugin_dir . 'includes/class-blitz-cache-logger.php';
+require_once $plugin_dir . 'includes/class-blitz-cache-error-handler.php';
+require_once $plugin_dir . 'includes/class-blitz-cache-validator.php';
+require_once $plugin_dir . 'includes/class-blitz-cache-helpers.php';
+
 // Load main plugin file (this registers the autoloader and activation hooks)
 require_once __DIR__ . '/../blitz-cache/blitz-cache.php';
 

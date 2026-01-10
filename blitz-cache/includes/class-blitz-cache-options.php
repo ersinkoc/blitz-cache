@@ -24,9 +24,20 @@ class Blitz_Cache_Options {
         if (self::$cloudflare === null) {
             self::$cloudflare = get_option('blitz_cache_cloudflare', []);
 
-            // Decrypt token
+            // Decrypt token with error handling
             if (!empty(self::$cloudflare['api_token'])) {
-                self::$cloudflare['api_token'] = self::decrypt(self::$cloudflare['api_token']);
+                try {
+                    self::$cloudflare['api_token'] = self::decrypt(self::$cloudflare['api_token']);
+                } catch (Blitz_Cache_Exception $e) {
+                    // Log error and return null for token
+                    if (function_exists('Blitz_Cache_Logger')) {
+                        Blitz_Cache_Logger::get_instance()->error(
+                            'Failed to decrypt Cloudflare API token',
+                            ['error' => $e->getMessage()]
+                        );
+                    }
+                    self::$cloudflare['api_token'] = null;
+                }
             }
         }
 
@@ -38,38 +49,102 @@ class Blitz_Cache_Options {
     }
 
     public static function set_cloudflare(array $settings): bool {
-        // Encrypt token before saving
+        // Encrypt token before saving with error handling
         if (!empty($settings['api_token'])) {
-            $settings['api_token'] = self::encrypt($settings['api_token']);
+            try {
+                $settings['api_token'] = self::encrypt($settings['api_token']);
+            } catch (Blitz_Cache_Exception $e) {
+                // Log error and don't save the token
+                if (function_exists('Blitz_Cache_Logger')) {
+                    Blitz_Cache_Logger::get_instance()->error(
+                        'Failed to encrypt Cloudflare API token',
+                        ['error' => $e->getMessage()]
+                    );
+                }
+                return false;
+            }
         }
 
         self::$cloudflare = array_merge(self::$cloudflare ?? [], $settings);
         return update_option('blitz_cache_cloudflare', self::$cloudflare);
     }
 
+    /**
+     * Encrypt data using AES-256-CBC with HMAC for integrity.
+     *
+     * @param string $data Data to encrypt.
+     * @return string Base64-encoded encrypted data with HMAC.
+     * @throws Blitz_Cache_Exception If OpenSSL is not available or encryption fails.
+     */
     private static function encrypt(string $data): string {
         if (!function_exists('openssl_encrypt')) {
-            return base64_encode($data);
+            throw new Blitz_Cache_Exception('OpenSSL extension is not available for encryption');
         }
 
         $key = wp_salt('auth');
         $iv = openssl_random_pseudo_bytes(16);
-        $encrypted = openssl_encrypt($data, 'AES-256-CBC', $key, 0, $iv);
+        if ($iv === false) {
+            throw new Blitz_Cache_Exception('Failed to generate IV for encryption');
+        }
 
-        return base64_encode($iv . $encrypted);
+        $encrypted = openssl_encrypt($data, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        if ($encrypted === false) {
+            throw new Blitz_Cache_Exception('AES-256 encryption failed');
+        }
+
+        // Generate HMAC for integrity verification (32 bytes for SHA-256)
+        $hmac = hash_hmac('sha256', $iv . $encrypted, $key, true);
+        if ($hmac === false) {
+            throw new Blitz_Cache_Exception('HMAC generation failed');
+        }
+
+        // Format: HMAC (32 bytes) + IV (16 bytes) + encrypted data
+        return base64_encode($hmac . $iv . $encrypted);
     }
 
+    /**
+     * Decrypt data using AES-256-CBC with HMAC verification.
+     *
+     * @param string $data Base64-encoded encrypted data with HMAC.
+     * @return string Decrypted data.
+     * @throws Blitz_Cache_Exception If OpenSSL is not available or decryption/verification fails.
+     */
     private static function decrypt(string $data): string {
         if (!function_exists('openssl_decrypt')) {
-            return base64_decode($data);
+            throw new Blitz_Cache_Exception('OpenSSL extension is not available for decryption');
         }
 
         $key = wp_salt('auth');
-        $data = base64_decode($data);
-        $iv = substr($data, 0, 16);
-        $encrypted = substr($data, 16);
+        $decoded = base64_decode($data);
 
-        return openssl_decrypt($encrypted, 'AES-256-CBC', $key, 0, $iv) ?: '';
+        if ($decoded === false) {
+            throw new Blitz_Cache_Exception('Failed to decode base64 encrypted data');
+        }
+
+        // Minimum length: HMAC (32) + IV (16) = 48 bytes
+        if (strlen($decoded) < 48) {
+            throw new Blitz_Cache_Exception('Encrypted data is too short to be valid');
+        }
+
+        // Extract components: HMAC (32 bytes) + IV (16 bytes) + encrypted data
+        $hmac = substr($decoded, 0, 32);
+        $iv = substr($decoded, 32, 16);
+        $encrypted = substr($decoded, 48);
+
+        // Verify HMAC for integrity (constant-time comparison)
+        $calculated_hmac = hash_hmac('sha256', $iv . $encrypted, $key, true);
+        if (!hash_equals($hmac, $calculated_hmac)) {
+            throw new Blitz_Cache_Exception('HMAC verification failed - data may be tampered');
+        }
+
+        // Decrypt the data
+        $decrypted = openssl_decrypt($encrypted, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
+        if ($decrypted === false) {
+            throw new Blitz_Cache_Exception('AES-256 decryption failed');
+        }
+
+        return $decrypted;
     }
 
     public static function get_defaults(): array {

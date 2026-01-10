@@ -55,7 +55,30 @@ class Blitz_Cache_Activator {
 
         foreach ($dirs as $dir) {
             if (!file_exists($dir)) {
-                wp_mkdir_p($dir);
+                $created = wp_mkdir_p($dir);
+                if (!$created) {
+                    if (function_exists('Blitz_Cache_Logger')) {
+                        Blitz_Cache_Logger::get_instance()->error(
+                            'Failed to create cache directory',
+                            ['dir' => $dir]
+                        );
+                    }
+                    continue;
+                }
+
+                // Set secure permissions for directories (0755)
+                @chmod($dir, 0755);
+
+                // Verify permissions were set correctly
+                $perms = fileperms($dir) & 0777;
+                if ($perms !== 0755) {
+                    if (function_exists('Blitz_Cache_Logger')) {
+                        Blitz_Cache_Logger::get_instance()->warning(
+                            'Could not set secure permissions on cache directory',
+                            ['dir' => $dir, 'actual_perms' => decoct($perms)]
+                        );
+                    }
+                }
             }
         }
 
@@ -77,11 +100,15 @@ class Blitz_Cache_Activator {
 </IfModule>
 HTACCESS;
             file_put_contents($htaccess, $rules);
+            // Set secure permissions for .htaccess (0644)
+            @chmod($htaccess, 0644);
         }
 
         $index = BLITZ_CACHE_CACHE_DIR . 'index.php';
         if (!file_exists($index)) {
             file_put_contents($index, '<?php // Silence is golden');
+            // Set secure permissions for index.php (0644)
+            @chmod($index, 0644);
         }
 
         // Initialize meta and stats files
@@ -154,8 +181,15 @@ HTACCESS;
         }
     }
 
+    /**
+     * Enable WP_CACHE constant in wp-config.php with backup mechanism.
+     *
+     * Creates a backup of wp-config.php before modification and stores
+     * the backup location for potential rollback.
+     */
     private static function enable_wp_cache(): void {
         $config_file = ABSPATH . 'wp-config.php';
+        $backup_dir = WP_CONTENT_DIR . '/blitz-cache-backups/';
 
         if (!is_writable($config_file)) {
             add_action('admin_notices', function() {
@@ -166,8 +200,47 @@ HTACCESS;
             return;
         }
 
+        // Create backup directory if it doesn't exist
+        if (!file_exists($backup_dir)) {
+            wp_mkdir_p($backup_dir);
+            // Protect backup directory with .htaccess
+            file_put_contents($backup_dir . '.htaccess', "Deny from all\n");
+            // Set secure permissions
+            @chmod($backup_dir, 0755);
+        }
+
+        // Create backup before modifying
+        $backup_file = $backup_dir . 'wp-config.php.backup.' . time();
+        if (!copy($config_file, $backup_file)) {
+            if (function_exists('Blitz_Cache_Logger')) {
+                Blitz_Cache_Logger::get_instance()->error(
+                    'Failed to create wp-config.php backup',
+                    ['config_file' => $config_file]
+                );
+            }
+            return;
+        }
+
+        // Set secure permissions on backup
+        @chmod($backup_file, 0644);
+
+        // Store backup location in option for potential rollback
+        update_option('blitz_cache_config_backup', $backup_file);
+
+        // Read current config
         $config = file_get_contents($config_file);
 
+        if ($config === false) {
+            if (function_exists('Blitz_Cache_Logger')) {
+                Blitz_Cache_Logger::get_instance()->error(
+                    'Failed to read wp-config.php',
+                    ['config_file' => $config_file]
+                );
+            }
+            return;
+        }
+
+        // Check if WP_CACHE is already defined
         if (strpos($config, 'WP_CACHE') !== false) {
             // Already defined, try to set to true
             $config = preg_replace(
@@ -184,7 +257,64 @@ HTACCESS;
             );
         }
 
-        file_put_contents($config_file, $config);
+        // Atomic write using temp file
+        $temp_file = $config_file . '.tmp.' . uniqid();
+        if (file_put_contents($temp_file, $config) === false) {
+            if (function_exists('Blitz_Cache_Logger')) {
+                Blitz_Cache_Logger::get_instance()->error(
+                    'Failed to write temp wp-config.php',
+                    ['temp_file' => $temp_file]
+                );
+            }
+            @unlink($temp_file);
+            return;
+        }
+
+        // Atomic rename
+        if (!rename($temp_file, $config_file)) {
+            if (function_exists('Blitz_Cache_Logger')) {
+                Blitz_Cache_Logger::get_instance()->critical(
+                    'Failed to rename temp wp-config.php to original',
+                    ['temp_file' => $temp_file, 'config_file' => $config_file]
+                );
+            }
+            @unlink($temp_file);
+
+            // Rollback from backup
+            if (copy($backup_file, $config_file)) {
+                if (function_exists('Blitz_Cache_Logger')) {
+                    Blitz_Cache_Logger::get_instance()->info(
+                        'Rolled back wp-config.php from backup',
+                        ['backup_file' => $backup_file]
+                    );
+                }
+            }
+            return;
+        }
+
+        // Verify the change was written correctly
+        $verify = file_get_contents($config_file);
+        if ($verify === false || strpos($verify, "define('WP_CACHE', true)") === false) {
+            if (function_exists('Blitz_Cache_Logger')) {
+                Blitz_Cache_Logger::get_instance()->critical(
+                    'Verification failed - WP_CACHE not found in wp-config.php after write',
+                    ['config_file' => $config_file]
+                );
+            }
+            // Rollback from backup
+            copy($backup_file, $config_file);
+            return;
+        }
+
+        // Set secure permissions
+        @chmod($config_file, 0644);
+
+        if (function_exists('Blitz_Cache_Logger')) {
+            Blitz_Cache_Logger::get_instance()->info(
+                'Successfully enabled WP_CACHE in wp-config.php',
+                ['backup_file' => $backup_file]
+            );
+        }
     }
 
     private static function schedule_cron(): void {

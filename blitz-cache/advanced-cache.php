@@ -87,34 +87,42 @@ $cache_key = md5($url);
 $cache_file = $cache_dir . 'pages/' . $cache_key . '.html';
 $cache_file_gz = $cache_file . '.gz';
 
+// Meta file with static caching within request
+$meta_file = $cache_dir . 'meta.json';
+static $blitz_meta_cache = null;
+static $blitz_meta_cache_time = 0;
+
+// Check if we need to refresh the meta cache
+$meta_file_time = file_exists($meta_file) ? filemtime($meta_file) : 0;
+if ($blitz_meta_cache === null || $blitz_meta_cache_time < $meta_file_time) {
+    if (file_exists($meta_file)) {
+        $meta_json = @file_get_contents($meta_file);
+        if ($meta_json !== false) {
+            $blitz_meta_cache = json_decode($meta_json, true);
+            $blitz_meta_cache_time = $meta_file_time;
+        }
+    }
+}
+
 // Try to serve gzipped version
 if (file_exists($cache_file_gz) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false) {
-    // Check expiry via meta
-    $meta_file = $cache_dir . 'meta.json';
-    if (file_exists($meta_file)) {
-        $meta = json_decode(file_get_contents($meta_file), true);
-        if (isset($meta[$cache_key]) && time() < $meta[$cache_key]['expires']) {
-            header('Content-Type: text/html; charset=UTF-8');
-            header('Content-Encoding: gzip');
-            header('X-Blitz-Cache: HIT (gzip, dropin)');
-            header('Vary: Accept-Encoding');
-            readfile($cache_file_gz);
-            exit;
-        }
+    if ($blitz_meta_cache && isset($blitz_meta_cache[$cache_key]) && time() < $blitz_meta_cache[$cache_key]['expires']) {
+        header('Content-Type: text/html; charset=UTF-8');
+        header('Content-Encoding: gzip');
+        header('X-Blitz-Cache: HIT (gzip, dropin)');
+        header('Vary: Accept-Encoding');
+        @readfile($cache_file_gz);
+        exit;
     }
 }
 
 // Try regular HTML
 if (file_exists($cache_file)) {
-    $meta_file = $cache_dir . 'meta.json';
-    if (file_exists($meta_file)) {
-        $meta = json_decode(file_get_contents($meta_file), true);
-        if (isset($meta[$cache_key]) && time() < $meta[$cache_key]['expires']) {
-            header('Content-Type: text/html; charset=UTF-8');
-            header('X-Blitz-Cache: HIT (dropin)');
-            readfile($cache_file);
-            exit;
-        }
+    if ($blitz_meta_cache && isset($blitz_meta_cache[$cache_key]) && time() < $blitz_meta_cache[$cache_key]['expires']) {
+        header('Content-Type: text/html; charset=UTF-8');
+        header('X-Blitz-Cache: HIT (dropin)');
+        @readfile($cache_file);
+        exit;
     }
 }
 
