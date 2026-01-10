@@ -1,51 +1,28 @@
 <?php
 /**
- * Test class for Blitz_Cache_Warmup
+ * Test class for \Blitz_Cache_Warmup
  */
 
 namespace BlitzCache\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-use Brain\Monkey;
+use BlitzCache\Tests\BlitzCacheTestCase;
 use Brain\Monkey\Functions;
-use BlitzCache\Blitz_Cache_Warmup;
 
 /**
- * Test suite for Blitz_Cache_Warmup class
+ * Test suite for \Blitz_Cache_Warmup class
  */
-class WarmupTest extends TestCase
+class WarmupTest extends BlitzCacheTestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        \Brain\Monkey\setup();
-
-        Functions\when('__')->returnArg();
-        Functions\when('do_action')->returnArg();
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'warmup_enabled' => true,
-            'warmup_source' => 'sitemap',
-            'warmup_interval' => 21600,
-            'warmup_batch_size' => 5
-        ]);
-    }
-
-    protected function tearDown(): void
-    {
-        \Brain\Monkey\tearDown();
-        parent::tearDown();
-    }
-
     /**
      * Test run does nothing when warmup disabled
      */
     public function testRunDoesNothingWhenWarmupDisabled()
     {
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
+        $this->mockOptions([
             'warmup_enabled' => false
         ]);
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
         $result = $warmup->run();
 
         // Should return null or void
@@ -59,14 +36,14 @@ class WarmupTest extends TestCase
     {
         Functions\when('home_url')->justReturn('http://example.com');
         Functions\when('wp_remote_get')->justReturn(new \WP_Error('test', 'Test error'));
-        Functions\when('wp_remote_retrieve_response_code')->return(200);
-        Functions\when('wp_remote_retrieve_body')->return('');
-        Functions\when('get_nav_menu_locations')->return([]);
-        Functions\when('get_posts')->return([]);
-        Functions\when('get_pages')->return([]);
-        Functions\when('get_categories')->return([]);
+        Functions\when('wp_remote_retrieve_response_code')->justReturn(200);
+        Functions\when('wp_remote_retrieve_body')->justReturn('');
+        Functions\when('get_nav_menu_locations')->justReturn([]);
+        Functions\when('get_posts')->justReturn([]);
+        Functions\when('get_pages')->justReturn([]);
+        Functions\when('get_categories')->justReturn([]);
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
 
         // Should not throw error
         $warmup->run();
@@ -85,7 +62,7 @@ class WarmupTest extends TestCase
 
         Functions\when('wp_remote_get')->justReturn($mockResponse);
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
         $result = $warmup->warm_url('http://example.com/test/');
 
         $this->assertTrue($result);
@@ -98,7 +75,7 @@ class WarmupTest extends TestCase
     {
         Functions\when('wp_remote_get')->justReturn(new \WP_Error('test', 'Test error'));
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
         $result = $warmup->warm_url('http://example.com/test/');
 
         $this->assertFalse($result);
@@ -115,7 +92,7 @@ class WarmupTest extends TestCase
 
         Functions\when('wp_remote_get')->justReturn($mockResponse);
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
         $result = $warmup->warm_url('http://example.com/test/');
 
         $this->assertFalse($result);
@@ -126,17 +103,19 @@ class WarmupTest extends TestCase
      */
     public function testGetUrlsWithSitemapSource()
     {
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
+        $this->mockOptions([
             'warmup_enabled' => true,
             'warmup_source' => 'sitemap'
         ]);
+        $this->resetOptionsCache();
+
         Functions\when('home_url')->justReturn('http://example.com');
         Functions\when('wp_remote_get')->justReturn(new \WP_Error('test', 'Test error'));
-        Functions\when('get_posts')->return([]);
-        Functions\when('get_pages')->return([]);
-        Functions\when('get_categories')->return([]);
+        Functions\when('get_posts')->justReturn([]);
+        Functions\when('get_pages')->justReturn([]);
+        Functions\when('get_categories')->justReturn([]);
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
 
         $method = new \ReflectionMethod($warmup, 'get_urls');
         $method->setAccessible(true);
@@ -151,20 +130,22 @@ class WarmupTest extends TestCase
      */
     public function testGetUrlsWithMenuSource()
     {
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
+        $this->mockOptions([
             'warmup_enabled' => true,
             'warmup_source' => 'menu'
         ]);
+        $this->resetOptionsCache();
+
         Functions\when('home_url')->justReturn('http://example.com');
-        Functions\when('get_nav_menu_locations')->return([
+        Functions\when('get_nav_menu_locations')->justReturn([
             'primary' => 1
         ]);
-        Functions\when('wp_get_nav_menu_items')->with(1)->return([
+        Functions\when('wp_get_nav_menu_items')->justReturn([
             (object)['url' => 'http://example.com/page-1/'],
             (object)['url' => 'http://example.com/page-2/']
         ]);
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
 
         $method = new \ReflectionMethod($warmup, 'get_urls');
         $method->setAccessible(true);
@@ -182,9 +163,12 @@ class WarmupTest extends TestCase
     public function testGetSitemapUrlsReturnsEmptyOnError()
     {
         Functions\when('home_url')->justReturn('http://example.com');
+        Functions\when('get_posts')->justReturn([]);
+        Functions\when('get_pages')->justReturn([]);
+        Functions\when('get_categories')->justReturn([]);
         Functions\when('wp_remote_get')->justReturn(new \WP_Error('test', 'Test error'));
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
 
         $method = new \ReflectionMethod($warmup, 'get_sitemap_urls');
         $method->setAccessible(true);
@@ -214,13 +198,13 @@ class WarmupTest extends TestCase
         ];
 
         Functions\when('home_url')->justReturn('http://example.com');
-        Functions\when('get_posts')->with(\Hamcrest\Matcher::typeOf('array'))->return($posts);
-        Functions\when('get_pages')->with(\Hamcrest\Matcher::typeOf('array'))->return($pages);
-        Functions\when('get_categories')->with(\Hamcrest\Matcher::typeOf('array'))->return($categories);
-        Functions\when('get_permalink')->return('http://example.com/permalink/');
-        Functions\when('get_category_link')->return('http://example.com/category/');
+        Functions\when('get_posts')->justReturn($posts);
+        Functions\when('get_pages')->justReturn($pages);
+        Functions\when('get_categories')->justReturn($categories);
+        Functions\when('get_permalink')->justReturn('http://example.com/permalink/');
+        Functions\when('get_category_link')->justReturn('http://example.com/category/');
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
 
         $method = new \ReflectionMethod($warmup, 'generate_url_list');
         $method->setAccessible(true);
@@ -236,10 +220,6 @@ class WarmupTest extends TestCase
      */
     public function testUpdateWarmupStatsUpdatesStatsFile()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        $stats_file = '/tmp/cache/stats.json';
-
         // Create initial stats file
         $initial_stats = [
             'hits' => 10,
@@ -250,21 +230,18 @@ class WarmupTest extends TestCase
             'last_purge' => 0,
             'period_start' => time()
         ];
-        file_put_contents($stats_file, json_encode($initial_stats));
+        $this->createTestStatsFile($initial_stats);
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
 
         $method = new \ReflectionMethod($warmup, 'update_warmup_stats');
         $method->setAccessible(true);
         $method->invoke($warmup);
 
         // Check if last_warmup was updated
-        $stats = json_decode(file_get_contents($stats_file), true);
+        $stats = json_decode(file_get_contents($this->test_cache_dir . 'stats.json'), true);
         $this->assertGreaterThan(0, $stats['last_warmup']);
         $this->assertGreaterThan($initial_stats['last_warmup'], $stats['last_warmup']);
-
-        // Cleanup
-        @unlink($stats_file);
     }
 
     /**
@@ -274,9 +251,9 @@ class WarmupTest extends TestCase
     {
         Functions\when('home_url')->justReturn('http://example.com');
         Functions\when('wp_remote_get')->justReturn(new \WP_Error('test', 'Test error'));
-        Functions\when('get_posts')->return([]);
-        Functions\when('get_pages')->return([]);
-        Functions\when('get_categories')->return([]);
+        Functions\when('get_posts')->justReturn([]);
+        Functions\when('get_pages')->justReturn([]);
+        Functions\when('get_categories')->justReturn([]);
 
         // Add filter to modify URLs
         add_filter('blitz_cache_warmup_urls', function($urls) {
@@ -284,7 +261,7 @@ class WarmupTest extends TestCase
             return $urls;
         });
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
 
         $method = new \ReflectionMethod($warmup, 'get_urls');
         $method->setAccessible(true);
@@ -300,14 +277,15 @@ class WarmupTest extends TestCase
     public function testBatchProcessing()
     {
         Functions\when('home_url')->justReturn('http://example.com');
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
+
+        $this->mockOptions([
             'warmup_enabled' => true,
             'warmup_source' => 'custom',
             'warmup_batch_size' => 3
         ]);
-        Functions\when('apply_filters')
-            ->with('blitz_cache_custom_warmup_urls')
-            ->return([
+        $this->resetOptionsCache();
+
+        Functions\when('apply_filters')->justReturn([
                 'http://example.com/1/',
                 'http://example.com/2/',
                 'http://example.com/3/',
@@ -321,7 +299,7 @@ class WarmupTest extends TestCase
             'response' => ['code' => 200]
         ]);
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
 
         // Should process in batches of 3
         $warmup->run();
@@ -335,9 +313,9 @@ class WarmupTest extends TestCase
     public function testGetMenuUrlsWithNoMenus()
     {
         Functions\when('home_url')->justReturn('http://example.com');
-        Functions\when('get_nav_menu_locations')->return([]);
+        Functions\when('get_nav_menu_locations')->justReturn([]);
 
-        $warmup = new Blitz_Cache_Warmup();
+        $warmup = new \Blitz_Cache_Warmup();
 
         $method = new \ReflectionMethod($warmup, 'get_menu_urls');
         $method->setAccessible(true);

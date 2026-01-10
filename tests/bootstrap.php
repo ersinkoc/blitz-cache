@@ -17,8 +17,45 @@ if (!defined('WP_PLUGIN_DIR')) {
     define('WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins');
 }
 
-// Mock WordPress helper functions - only the ones needed for plugin loading
-// Tests will mock other functions as needed
+// Define plugin constants before loading any classes
+if (!defined('BLITZ_CACHE_VERSION')) {
+    define('BLITZ_CACHE_VERSION', '1.0.0');
+}
+if (!defined('BLITZ_CACHE_PLUGIN_FILE')) {
+    define('BLITZ_CACHE_PLUGIN_FILE', __DIR__ . '/../blitz-cache/blitz-cache.php');
+}
+if (!defined('BLITZ_CACHE_PLUGIN_DIR')) {
+    define('BLITZ_CACHE_PLUGIN_DIR', __DIR__ . '/../blitz-cache/');
+}
+if (!defined('BLITZ_CACHE_PLUGIN_URL')) {
+    define('BLITZ_CACHE_PLUGIN_URL', 'http://localhost/blitz-cache/');
+}
+if (!defined('BLITZ_CACHE_PLUGIN_BASENAME')) {
+    define('BLITZ_CACHE_PLUGIN_BASENAME', 'blitz-cache/blitz-cache.php');
+}
+if (!defined('BLITZ_CACHE_CACHE_DIR')) {
+    define('BLITZ_CACHE_CACHE_DIR', WP_CONTENT_DIR . '/cache/blitz-cache/');
+}
+if (!defined('BLITZ_CACHE_MIN_WP')) {
+    define('BLITZ_CACHE_MIN_WP', '6.0');
+}
+if (!defined('BLITZ_CACHE_MIN_PHP')) {
+    define('BLITZ_CACHE_MIN_PHP', '8.0');
+}
+
+// Define minimal WordPress functions needed for plugin loading
+if (!function_exists('add_action')) {
+    function add_action($hook, $function_to_add, $priority = 10, $accepted_args = 1) {
+        // Stub for plugin loading - tests will override with Brain Monkey
+    }
+}
+
+if (!function_exists('do_action')) {
+    function do_action($hook, ...$args) {
+        // Stub for plugin loading - tests will override with Brain Monkey
+    }
+}
+
 if (!function_exists('plugin_dir_path')) {
     function plugin_dir_path($file) {
         return dirname($file) . '/';
@@ -37,57 +74,127 @@ if (!function_exists('plugin_basename')) {
     }
 }
 
-if (!function_exists('add_action')) {
-    function add_action($hook, $function_to_add, $priority = 10, $accepted_args = 1) {
-        // Mock action
-    }
-}
-
 if (!function_exists('register_activation_hook')) {
     function register_activation_hook($file, $function) {
-        // Mock activation hook
+        // Stub for plugin loading
     }
 }
 
 if (!function_exists('register_deactivation_hook')) {
     function register_deactivation_hook($file, $function) {
-        // Mock deactivation hook
+        // Stub for plugin loading
     }
 }
 
-if (!function_exists('get_option')) {
-    function get_option($option, $default = false) {
-        return $default;
+// Define WP_Error class if not exists
+if (!class_exists('WP_Error')) {
+    class WP_Error {
+        private $code;
+        private $message;
+        private $data;
+
+        public function __construct($code = '', $message = '', $data = '') {
+            $this->code = $code;
+            $this->message = $message;
+            $this->data = $data;
+        }
+
+        public function get_error_code() {
+            return $this->code;
+        }
+
+        public function get_error_message($code = '') {
+            return $this->message;
+        }
+
+        public function get_error_data($code = '') {
+            return $this->data;
+        }
+
+        public function add($code, $message, $data = '') {
+            // Stub
+        }
+
+        public function add_data($data, $code = '') {
+            // Stub
+        }
     }
 }
 
-if (!function_exists('update_option')) {
-    function update_option($option, $value, $autoload = null) {
+// Define WP_Post class if not exists
+if (!class_exists('WP_Post')) {
+    class WP_Post {
+        public $ID;
+        public $post_author;
+        public $post_date;
+        public $post_date_gmt;
+        public $post_content;
+        public $post_title;
+        public $post_excerpt;
+        public $post_status;
+        public $comment_status;
+        public $ping_status;
+        public $post_password;
+        public $post_name;
+        public $to_ping;
+        public $pinged;
+        public $post_modified;
+        public $post_modified_gmt;
+        public $post_content_filtered;
+        public $post_parent;
+        public $guid;
+        public $menu_order;
+        public $post_type;
+        public $post_mime_type;
+        public $comment_count;
+        public $filter;
+
+        public function __construct($post = null) {
+            if (is_object($post)) {
+                foreach (get_object_vars($post) as $key => $value) {
+                    $this->$key = $value;
+                }
+            }
+        }
+    }
+}
+
+// Define is_wp_error function
+if (!function_exists('is_wp_error')) {
+    function is_wp_error($thing) {
+        return $thing instanceof WP_Error;
+    }
+}
+
+// Define transient functions
+if (!function_exists('get_transient')) {
+    function get_transient($transient) {
+        return false; // Stub returns false (transient not found)
+    }
+}
+
+if (!function_exists('set_transient')) {
+    function set_transient($transient, $value, $expiration = 0) {
+        // Stub for setting transients
         return true;
     }
 }
 
-if (!function_exists('delete_option')) {
-    function delete_option($option) {
+if (!function_exists('delete_transient')) {
+    function delete_transient($transient) {
+        // Stub for deleting transients
         return true;
     }
 }
 
-if (!function_exists('add_option')) {
-    function add_option($option, $value = '', $deprecated = '', $autoload = 'yes') {
-        return update_option($option, $value);
-    }
-}
+// Load base test case - sets up Brain Monkey properly
+require_once __DIR__ . '/TestCase.php';
 
-if (!function_exists('wp_remote_request')) {
-    function wp_remote_request($url, $args = array()) {
-        // Mock remote request
-        return array('body' => '');
-    }
-}
-
-// Load plugin classes manually to ensure they're available
+// Load plugin classes manually
 $plugin_dir = __DIR__ . '/../blitz-cache/';
+
+// Load Minify class (needed by cache class)
+require_once $plugin_dir . 'includes/class-blitz-cache-minify.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-activator.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-cache.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-cloudflare.php';
@@ -106,9 +213,6 @@ require_once $plugin_dir . 'includes/class-blitz-cache-logger.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-error-handler.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-validator.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-helpers.php';
-
-// Load main plugin file (this registers the autoloader and activation hooks)
-require_once __DIR__ . '/../blitz-cache/blitz-cache.php';
 
 // Set up test environment
 define('BLITZ_CACHE_TEST_MODE', true);

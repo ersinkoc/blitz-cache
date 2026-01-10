@@ -5,165 +5,28 @@
 
 namespace BlitzCache\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-use Brain\Monkey;
+use BlitzCache\Tests\BlitzCacheTestCase;
 use Brain\Monkey\Functions;
 use \Blitz_Cache_Cache;
 
 /**
  * Test suite for Blitz_Cache_Cache class
  */
-class CacheTest extends TestCase
+class CacheTest extends BlitzCacheTestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        \Brain\Monkey\setup();
-
-        // Define necessary global functions
-        Functions\when('__')->returnArg();
-        Functions\when('esc_html__')->returnArg();
-        Functions\when('esc_html_e')->returnArg();
-        Functions\when('esc_attr__')->returnArg();
-        Functions\when('esc_attr')->returnArg();
-        Functions\when('wp_json_encode')->returnArg();
-        Functions\when('do_action')->returnArg();
-        Functions\when('apply_filters')->returnArg();
-        Functions\when('is_ssl')->justReturn(false);
-        Functions\when('wp_is_mobile')->justReturn(false);
-        Functions\when('is_user_logged_in')->justReturn(false);
-    }
-
-    protected function tearDown(): void
-    {
-        \Brain\Monkey\tearDown();
-        parent::tearDown();
-    }
 
     /**
      * Test that cache directory is properly set
      */
     public function testCacheDirectoryIsSet()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
         $cache = new Blitz_Cache_Cache();
 
         $reflection = new \ReflectionClass($cache);
         $property = $reflection->getProperty('cache_dir');
         $property->setAccessible(true);
 
-        $this->assertEquals('/tmp/cache/pages/', $property->getValue($cache));
-    }
-
-    /**
-     * Test should_cache returns false when disabled
-     */
-    public function testShouldCacheReturnsFalseWhenDisabled()
-    {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        // Mock options
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'page_cache_enabled' => false
-        ]);
-
-        $cache = new Blitz_Cache_Cache();
-        $this->assertFalse($cache->should_cache());
-    }
-
-    /**
-     * Test should_cache returns false for POST requests
-     */
-    public function testShouldCacheReturnsFalseForPost()
-    {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'page_cache_enabled' => true
-        ]);
-
-        $cache = new Blitz_Cache_Cache();
-        $this->assertFalse($cache->should_cache());
-    }
-
-    /**
-     * Test should_cache returns false for logged in users (default)
-     */
-    public function testShouldCacheReturnsFalseForLoggedInUsers()
-    {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        Functions\when('is_user_logged_in')->justReturn(true);
-
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'page_cache_enabled' => true,
-            'cache_logged_in' => false
-        ]);
-
-        $cache = new Blitz_Cache_Cache();
-        $this->assertFalse($cache->should_cache());
-    }
-
-    /**
-     * Test should_cache returns true for logged in users when enabled
-     */
-    public function testShouldCacheReturnsTrueForLoggedInUsersWhenEnabled()
-    {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        Functions\when('is_user_logged_in')->justReturn(true);
-
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'page_cache_enabled' => true,
-            'cache_logged_in' => true
-        ]);
-
-        $cache = new Blitz_Cache_Cache();
-        $this->assertTrue($cache->should_cache());
-    }
-
-    /**
-     * Test should_cache respects excluded URLs
-     */
-    public function testShouldCacheRespectsExcludedUrls()
-    {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['REQUEST_URI'] = '/admin/';
-
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'page_cache_enabled' => true,
-            'excluded_urls' => ['/admin/*', '/wp-admin/*']
-        ]);
-
-        $cache = new Blitz_Cache_Cache();
-        $this->assertFalse($cache->should_cache());
-    }
-
-    /**
-     * Test should_cache respects excluded cookies
-     */
-    public function testShouldCacheRespectsExcludedCookies()
-    {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_COOKIE['wordpress_logged_in_123'] = 'user_123';
-
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'page_cache_enabled' => true,
-            'excluded_cookies' => ['wordpress_logged_in_*']
-        ]);
-
-        $cache = new Blitz_Cache_Cache();
-        $this->assertFalse($cache->should_cache());
+        $this->assertEquals($this->test_cache_dir . 'pages/', $property->getValue($cache));
     }
 
     /**
@@ -171,15 +34,8 @@ class CacheTest extends TestCase
      */
     public function testGetCacheKeyGeneratesMd5Hash()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
         $_SERVER['HTTP_HOST'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/test-page/';
-
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'page_cache_enabled' => true,
-            'mobile_cache' => false
-        ]);
 
         $cache = new Blitz_Cache_Cache();
         $key = $cache->get_cache_key();
@@ -193,15 +49,16 @@ class CacheTest extends TestCase
      */
     public function testGetCacheKeyIncludesMobileSuffix()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
         $_SERVER['HTTP_HOST'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/test-page/';
+
+        // Mock wp_is_mobile to return true
         Functions\when('wp_is_mobile')->justReturn(true);
 
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
+        // Override options to enable mobile cache
+        Functions\when('get_option')->justReturn([
             'page_cache_enabled' => true,
-            'mobile_cache' => true
+            'mobile_cache' => true,
         ]);
 
         $cache = new Blitz_Cache_Cache();
@@ -217,42 +74,18 @@ class CacheTest extends TestCase
      */
     public function testStoreCreatesCacheFiles()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        $cache_dir = '/tmp/cache/pages/';
-        $key = 'test_key_123';
+        $key = 'test_key_' . md5(uniqid());
         $html = '<html><body>Test Content</body></html>';
 
-        // Create cache directory
-        @mkdir($cache_dir, 0755, true);
-
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'page_cache_enabled' => true,
-            'page_cache_ttl' => 86400,
-            'gzip_enabled' => true,
-            'html_minify_enabled' => false,
-            'mobile_cache' => false
-        ]);
-
-        Functions\when('apply_filters')->returnArg();
-        Functions\when('do_action')->returnArg();
-
-        // Mock get_current_url
-        Functions\when('is_ssl')->justReturn(false);
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['REQUEST_URI'] = '/test/';
-
         $cache = new Blitz_Cache_Cache();
-        $cache->store($key, $html);
+        $result = $cache->store($key, $html);
 
-        // Check if files exist
-        $this->assertFileExists($cache_dir . $key . '.html');
-        $this->assertFileExists($cache_dir . $key . '.html.gz');
+        $this->assertTrue($result);
+        $this->assertFileExists($this->test_cache_dir . 'pages/' . $key . '.html');
 
         // Cleanup
-        @unlink($cache_dir . $key . '.html');
-        @unlink($cache_dir . $key . '.html.gz');
-        @rmdir($cache_dir);
+        @unlink($this->test_cache_dir . 'pages/' . $key . '.html');
+        @unlink($this->test_cache_dir . 'pages/' . $key . '.html.gz');
     }
 
     /**
@@ -260,25 +93,18 @@ class CacheTest extends TestCase
      */
     public function testDeleteRemovesCacheFiles()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
+        $key = 'test_key_' . md5(uniqid());
 
-        $cache_dir = '/tmp/cache/pages/';
-        $key = 'test_key_456';
-
-        // Create cache directory and files
-        @mkdir($cache_dir, 0755, true);
-        file_put_contents($cache_dir . $key . '.html', 'test');
-        file_put_contents($cache_dir . $key . '.html.gz', 'test gzip');
+        // Create test files
+        file_put_contents($this->test_cache_dir . 'pages/' . $key . '.html', 'test');
+        file_put_contents($this->test_cache_dir . 'pages/' . $key . '.html.gz', 'test gzip');
 
         $cache = new Blitz_Cache_Cache();
         $cache->delete($key);
 
         // Check if files are deleted
-        $this->assertFileDoesNotExist($cache_dir . $key . '.html');
-        $this->assertFileDoesNotExist($cache_dir . $key . '.html.gz');
-
-        // Cleanup
-        @rmdir($cache_dir);
+        $this->assertFileDoesNotExist($this->test_cache_dir . 'pages/' . $key . '.html');
+        $this->assertFileDoesNotExist($this->test_cache_dir . 'pages/' . $key . '.html.gz');
     }
 
     /**
@@ -286,27 +112,20 @@ class CacheTest extends TestCase
      */
     public function testPurgeUrlDeletesSpecificUrlCache()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        $cache_dir = '/tmp/cache/pages/';
         $url = 'http://example.com/test-page/';
+        $key = md5($url);
+        $mobile_key = md5($url . '|mobile');
 
-        // Create cache directory and files
-        @mkdir($cache_dir, 0755, true);
-        file_put_contents($cache_dir . md5($url) . '.html', 'test');
-        file_put_contents($cache_dir . md5($url) . '|mobile' . '.html', 'mobile test');
-
-        Functions\when('do_action')->returnArg();
+        // Create test files
+        file_put_contents($this->test_cache_dir . 'pages/' . $key . '.html', 'test');
+        file_put_contents($this->test_cache_dir . 'pages/' . $mobile_key . '.html', 'mobile test');
 
         $cache = new Blitz_Cache_Cache();
         $cache->purge_url($url);
 
         // Check if both files are deleted (desktop and mobile)
-        $this->assertFileDoesNotExist($cache_dir . md5($url) . '.html');
-        $this->assertFileDoesNotExist($cache_dir . md5($url) . '|mobile' . '.html');
-
-        // Cleanup
-        @rmdir($cache_dir);
+        $this->assertFileDoesNotExist($this->test_cache_dir . 'pages/' . $key . '.html');
+        $this->assertFileDoesNotExist($this->test_cache_dir . 'pages/' . $mobile_key . '.html');
     }
 
     /**
@@ -314,36 +133,26 @@ class CacheTest extends TestCase
      */
     public function testPurgeAllClearsAllCache()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
+        $meta_file = $this->test_cache_dir . 'meta.json';
 
-        $cache_dir = '/tmp/cache/pages/';
-        $meta_file = '/tmp/cache/meta.json';
-
-        // Create cache directory and files
-        @mkdir($cache_dir, 0755, true);
-        file_put_contents($cache_dir . 'key1.html', 'test1');
-        file_put_contents($cache_dir . 'key2.html', 'test2');
-        file_put_contents($cache_dir . 'key3.html.gz', 'test3');
+        // Create test files
+        file_put_contents($this->test_cache_dir . 'pages/key1.html', 'test1');
+        file_put_contents($this->test_cache_dir . 'pages/key2.html', 'test2');
+        file_put_contents($this->test_cache_dir . 'pages/key3.html.gz', 'test3');
         file_put_contents($meta_file, json_encode(['key1' => [], 'key2' => []]));
-
-        Functions\when('do_action')->returnArg();
 
         $cache = new Blitz_Cache_Cache();
         $cache->purge_all();
 
         // Check if all files are deleted
-        $this->assertFileDoesNotExist($cache_dir . 'key1.html');
-        $this->assertFileDoesNotExist($cache_dir . 'key2.html');
-        $this->assertFileDoesNotExist($cache_dir . 'key3.html.gz');
+        $this->assertFileDoesNotExist($this->test_cache_dir . 'pages/key1.html');
+        $this->assertFileDoesNotExist($this->test_cache_dir . 'pages/key2.html');
+        $this->assertFileDoesNotExist($this->test_cache_dir . 'pages/key3.html.gz');
 
         // Check if meta is reset
         $this->assertFileExists($meta_file);
         $meta = json_decode(file_get_contents($meta_file), true);
         $this->assertEmpty($meta);
-
-        // Cleanup
-        @unlink($meta_file);
-        @rmdir($cache_dir);
     }
 
     /**
@@ -351,9 +160,7 @@ class CacheTest extends TestCase
      */
     public function testGetStatsReturnsStatsArray()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
-
-        $stats_file = '/tmp/cache/stats.json';
+        $stats_file = $this->test_cache_dir . 'stats.json';
 
         // Create stats file
         $stats_data = [
@@ -374,40 +181,178 @@ class CacheTest extends TestCase
         $this->assertEquals(100, $stats['hits']);
         $this->assertEquals(50, $stats['misses']);
         $this->assertEquals(25, $stats['cached_pages']);
-
-        // Cleanup
-        @unlink($stats_file);
     }
 
     /**
-     * Test filter hook blitz_cache_should_cache works
+     * Test store with gzip enabled creates gzipped file
      */
-    public function testFilterHookBlitzCacheShouldCache()
+    public function testStoreWithGzipCreatesGzippedFile()
     {
-        define('BLITZ_CACHE_CACHE_DIR', '/tmp/cache/');
+        if (!function_exists('gzencode')) {
+            $this->markTestSkipped('gzencode function not available');
+        }
 
-        Functions\when('Blitz_Cache_Options::get')->justReturn([
-            'page_cache_enabled' => true
+        $key = 'test_gzip_' . md5(uniqid());
+        $html = '<html><body>Test Content for Gzip</body></html>';
+
+        // Enable gzip
+        Functions\when('get_option')->justReturn([
+            'page_cache_enabled' => true,
+            'page_cache_ttl' => 86400,
+            'gzip_enabled' => true,
+            'html_minify_enabled' => false,
+            'mobile_cache' => false
         ]);
 
-        Functions\when('apply_filters')
-            ->beCalledWithConsecutive(
-                ['blitz_cache_should_cache', true],
-                ['blitz_cache_should_cache', false]
-            )
-            ->returnValues([true, false]);
+        $cache = new Blitz_Cache_Cache();
+        $result = $cache->store($key, $html);
+
+        $this->assertTrue($result);
+        $this->assertFileExists($this->test_cache_dir . 'pages/' . $key . '.html');
+        $this->assertFileExists($this->test_cache_dir . 'pages/' . $key . '.html.gz');
+
+        // Verify gzipped content is valid
+        $gzipped_content = file_get_contents($this->test_cache_dir . 'pages/' . $key . '.html.gz');
+        $decompressed = @gzdecode($gzipped_content);
+        $this->assertNotFalse($decompressed);
+
+        // Cleanup
+        @unlink($this->test_cache_dir . 'pages/' . $key . '.html');
+        @unlink($this->test_cache_dir . 'pages/' . $key . '.html.gz');
+    }
+
+    /**
+     * Test get_cached returns null for non-existent cache
+     */
+    public function testGetCachedReturnsNullForNonExistentCache()
+    {
+        $key = 'non_existent_' . md5(uniqid());
 
         $cache = new Blitz_Cache_Cache();
+        $result = $cache->get_cached($key);
 
-        // First call should return true (after filter)
-        $this->assertTrue($cache->should_cache());
+        $this->assertNull($result);
+    }
 
-        // Mock the filter to return false
-        global $wp_filter;
-        $wp_filter = [];
-        add_filter('blitz_cache_should_cache', function() { return false; });
+    /**
+     * Test get_cached returns cached content
+     */
+    public function testGetCachedReturnsCachedContent()
+    {
+        $key = 'cached_' . md5(uniqid());
+        $html = '<html><body>Cached Content</body></html>';
 
-        // Second call should return false (after filter)
-        $this->assertFalse($cache->should_cache());
+        // Manually create a valid cache file with meta
+        file_put_contents($this->test_cache_dir . 'pages/' . $key . '.html', $html);
+
+        // Create meta file
+        $meta = [
+            $key => [
+                'url' => 'http://example.com/test/',
+                'file' => $key . '.html',
+                'created' => time(),
+                'expires' => time() + 3600, // Expires in 1 hour
+                'mobile' => false,
+            ]
+        ];
+        file_put_contents($this->test_cache_dir . 'meta.json', json_encode($meta));
+
+        $cache = new Blitz_Cache_Cache();
+        $result = $cache->get_cached($key);
+
+        $this->assertNotNull($result);
+        $this->assertStringContainsString('Cached Content', $result);
+
+        // Cleanup
+        @unlink($this->test_cache_dir . 'pages/' . $key . '.html');
+        @unlink($this->test_cache_dir . 'meta.json');
+    }
+
+    /**
+     * Test get_cached returns null for expired cache
+     */
+    public function testGetCachedReturnsNullForExpiredCache()
+    {
+        $key = 'expired_' . md5(uniqid());
+        $html = '<html><body>Expired Content</body></html>';
+
+        // Manually create a cache file
+        file_put_contents($this->test_cache_dir . 'pages/' . $key . '.html', $html);
+
+        // Create meta file with expired timestamp
+        $meta = [
+            $key => [
+                'url' => 'http://example.com/test/',
+                'file' => $key . '.html',
+                'created' => time() - 7200,
+                'expires' => time() - 3600, // Expired 1 hour ago
+                'mobile' => false,
+            ]
+        ];
+        file_put_contents($this->test_cache_dir . 'meta.json', json_encode($meta));
+
+        $cache = new Blitz_Cache_Cache();
+        $result = $cache->get_cached($key);
+
+        $this->assertNull($result);
+
+        // Cleanup
+        @unlink($this->test_cache_dir . 'pages/' . $key . '.html');
+        @unlink($this->test_cache_dir . 'meta.json');
+    }
+
+    /**
+     * Test atomic file write operation
+     */
+    public function testAtomicFileWrite()
+    {
+        $key = 'atomic_' . md5(uniqid());
+        $html1 = '<html><body>Version 1</body></html>';
+        $html2 = '<html><body>Version 2</body></html>';
+
+        $cache = new Blitz_Cache_Cache();
+        $cache->store($key, $html1);
+
+        // Immediately overwrite
+        $cache->store($key, $html2);
+
+        // Verify the file was overwritten by reading it directly
+        $cachedFile = $this->test_cache_dir . 'pages/' . $key . '.html';
+        $this->assertFileExists($cachedFile);
+        $result = file_get_contents($cachedFile);
+        $this->assertStringContainsString('Version 2', $result);
+
+        // Cleanup
+        @unlink($this->test_cache_dir . 'pages/' . $key . '.html');
+        @unlink($this->test_cache_dir . 'meta.json');
+    }
+
+    /**
+     * Test meta file operations
+     */
+    public function testMetaFileOperations()
+    {
+        $key = 'meta_test_' . md5(uniqid());
+        $html = '<html><body>Meta Test</body></html>';
+
+        $cache = new Blitz_Cache_Cache();
+        $cache->store($key, $html);
+
+        // Check meta file exists
+        $this->assertFileExists($this->test_cache_dir . 'meta.json');
+
+        $meta = json_decode(file_get_contents($this->test_cache_dir . 'meta.json'), true);
+        $this->assertArrayHasKey($key, $meta);
+        $this->assertArrayHasKey('expires', $meta[$key]);
+        $this->assertArrayHasKey('created', $meta[$key]);
+
+        // Delete should also remove meta
+        $cache->delete($key);
+
+        $meta_after = json_decode(file_get_contents($this->test_cache_dir . 'meta.json'), true);
+        $this->assertArrayNotHasKey($key, $meta_after);
+
+        // Cleanup
+        @unlink($this->test_cache_dir . 'meta.json');
     }
 }

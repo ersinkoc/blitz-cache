@@ -1,35 +1,26 @@
 <?php
 /**
- * Test class for Blitz_Cache_Purge
+ * Test class for \Blitz_Cache_Purge
  */
 
 namespace BlitzCache\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-use Brain\Monkey;
+use BlitzCache\Tests\BlitzCacheTestCase;
 use Brain\Monkey\Functions;
-use BlitzCache\Blitz_Cache_Purge;
 
 /**
- * Test suite for Blitz_Cache_Purge class
+ * Test suite for \Blitz_Cache_Purge class
  */
-class PurgeTest extends TestCase
+class PurgeTest extends BlitzCacheTestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
-        \Brain\Monkey\setup();
 
-        Functions\when('__')->returnArg();
-        Functions\when('do_action')->returnArg();
-        Functions\when('Blitz_Cache_Options::get_cloudflare')->justReturn([]);
-        Functions\when('Blitz_Cache_Options::set_cloudflare')->justReturn(true);
-    }
-
-    protected function tearDown(): void
-    {
-        \Brain\Monkey\tearDown();
-        parent::tearDown();
+        // Mock options
+        Functions\when('get_option')->justReturn([]);
+        Functions\when('update_option')->justReturn(true);
+        Functions\when('get_the_date')->justReturn('2024-01-15');
     }
 
     /**
@@ -39,10 +30,10 @@ class PurgeTest extends TestCase
     {
         define('DOING_AUTOSAVE', true);
 
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
 
         // Create a mock post
-        $post = new \stdClass();
+        $post = new \WP_Post((object)['post_status' => 'publish']);
         $post->post_status = 'publish';
 
         // This should not trigger any purge
@@ -61,9 +52,9 @@ class PurgeTest extends TestCase
 
         Functions\when('wp_is_post_revision')->justReturn(true);
 
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
 
-        $post = new \stdClass();
+        $post = new \WP_Post((object)['post_status' => 'publish']);
         $post->post_status = 'publish';
 
         $purge->on_post_save(123, $post);
@@ -79,9 +70,9 @@ class PurgeTest extends TestCase
         define('DOING_AUTOSAVE', false);
         Functions\when('wp_is_post_revision')->justReturn(false);
 
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
 
-        $post = new \stdClass();
+        $post = new \WP_Post((object)['post_status' => 'publish']);
         $post->post_status = 'draft'; // Not published
 
         $purge->on_post_save(123, $post);
@@ -99,14 +90,14 @@ class PurgeTest extends TestCase
         Functions\when('get_permalink')->justReturn('http://example.com/post-123/');
         Functions\when('get_post_type')->justReturn('post');
         Functions\when('get_post_type_archive_link')->justReturn(false);
-        Functions\when('get_the_category')->return([]);
+        Functions\when('get_the_category')->justReturn([]);
         Functions\when('get_the_tags')->justReturn(false);
-        Functions\when('get_author_posts_url')->return('http://example.com/author/john/');
-        Functions\when('get_year_link')->return('http://example.com/2024/');
-        Functions\when('get_month_link')->return('http://example.com/2024/01/');
-        Functions\when('get_day_link')->return('http://example.com/2024/01/15/');
-        Functions\when('get_feed_link')->return('http://example.com/feed/');
-        Functions\when('get_option')->justReturn(false);
+        Functions\when('get_author_posts_url')->justReturn('http://example.com/author/john/');
+        Functions\when('get_year_link')->justReturn('http://example.com/2024/');
+        Functions\when('get_month_link')->justReturn('http://example.com/2024/01/');
+        Functions\when('get_day_link')->justReturn('http://example.com/2024/01/15/');
+        Functions\when('get_feed_link')->justReturn('http://example.com/feed/');
+        Functions\when('get_option')->justReturn([]); // Return array instead of false
         Functions\when('home_url')->justReturn('http://example.com/');
 
         // Mock the cache object
@@ -117,13 +108,13 @@ class PurgeTest extends TestCase
             ->method('purge_url');
 
         // Replace the cache property
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
         $reflection = new \ReflectionClass($purge);
         $property = $reflection->getProperty('cache');
         $property->setAccessible(true);
         $property->setValue($purge, $mockCache);
 
-        $post = new \stdClass();
+        $post = new \WP_Post((object)['post_status' => 'publish']);
         $post->post_status = 'publish';
         $post->post_author = 1;
 
@@ -143,7 +134,7 @@ class PurgeTest extends TestCase
         $mockCache->expects($this->once())
             ->method('purge_all');
 
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
         $reflection = new \ReflectionClass($purge);
         $property = $reflection->getProperty('cache');
         $property->setAccessible(true);
@@ -166,7 +157,7 @@ class PurgeTest extends TestCase
             ->method('purge_url')
             ->with('http://example.com/test/');
 
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
         $reflection = new \ReflectionClass($purge);
         $property = $reflection->getProperty('cache');
         $property->setAccessible(true);
@@ -185,7 +176,7 @@ class PurgeTest extends TestCase
         Functions\when('get_comment')->justReturn((object)[
             'comment_post_ID' => 123
         ]);
-        Functions\when('get_permalink')->with(123)->return('http://example.com/post-123/');
+        Functions\when('get_permalink')->justReturn('http://example.com/post-123/');
 
         $mockCache = $this->getMockBuilder('Blitz_Cache_Cache')
             ->onlyMethods(['purge_url'])
@@ -194,7 +185,7 @@ class PurgeTest extends TestCase
             ->method('purge_url')
             ->with('http://example.com/post-123/');
 
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
         $reflection = new \ReflectionClass($purge);
         $property = $reflection->getProperty('cache');
         $property->setAccessible(true);
@@ -210,27 +201,27 @@ class PurgeTest extends TestCase
      */
     public function testGetRelatedUrls()
     {
-        Functions\when('get_permalink')->with(123)->return('http://example.com/post-123/');
-        Functions\when('get_post_type')->with(123)->return('post');
-        Functions\when('get_post_type_archive_link')->with('post')->return('http://example.com/blog/');
-        Functions\when('get_the_category')->with(123)->return([]);
-        Functions\when('get_the_tags')->with(123)->justReturn(false);
-        Functions\when('get_author_posts_url')->with(1)->return('http://example.com/author/john/');
-        Functions\when('get_year_link')->with('2024')->return('http://example.com/2024/');
-        Functions\when('get_month_link')->with('2024', '01')->return('http://example.com/2024/01/');
-        Functions\when('get_day_link')->with('2024', '01', '15')->return('http://example.com/2024/01/15/');
-        Functions\when('get_feed_link')->return('http://example.com/feed/');
-        Functions\when('get_feed_link')->with('rdf')->return('http://example.com/feed/rdf/');
-        Functions\when('get_feed_link')->with('atom')->return('http://example.com/feed/atom/');
-        Functions\when('get_option')->with('page_for_posts')->return(0);
+        Functions\when('get_permalink')->justReturn('http://example.com/post-123/');
+        Functions\when('get_post_type')->justReturn('post');
+        Functions\when('get_post_type_archive_link')->justReturn('http://example.com/blog/');
+        Functions\when('get_the_category')->justReturn([]);
+        Functions\when('get_the_tags')->justReturn(false);
+        Functions\when('get_author_posts_url')->justReturn('http://example.com/author/john/');
+        Functions\when('get_year_link')->justReturn('http://example.com/2024/');
+        Functions\when('get_month_link')->justReturn('http://example.com/2024/01/');
+        Functions\when('get_day_link')->justReturn('http://example.com/2024/01/15/');
+        Functions\when('get_feed_link')->justReturn('http://example.com/feed/');
+        Functions\when('get_feed_link')->justReturn('http://example.com/feed/rdf/');
+        Functions\when('get_feed_link')->justReturn('http://example.com/feed/atom/');
+        Functions\when('get_option')->justReturn(['page_for_posts' => 0]);
 
-        $post = new \stdClass();
+        $post = new \WP_Post((object)['post_status' => 'publish']);
         $post->ID = 123;
         $post->post_author = 1;
         $post->post_date = '2024-01-15 12:00:00';
 
         // Use reflection to test the private method
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
         $method = new \ReflectionMethod($purge, 'get_related_urls');
         $method->setAccessible(true);
 
@@ -252,25 +243,22 @@ class PurgeTest extends TestCase
      */
     public function testFilterHookBlitzCachePurgeUrls()
     {
-        Functions\when('get_permalink')->with(123)->return('http://example.com/post-123/');
-        Functions\when('get_post_type')->with(123)->return('post');
-        Functions\when('get_post_type_archive_link')->with('post')->return('http://example.com/blog/');
-        Functions\when('get_the_category')->with(123)->return([]);
-        Functions\when('get_the_tags')->with(123)->justReturn(false);
-        Functions\when('get_author_posts_url')->with(1)->return('http://example.com/author/john/');
-        Functions\when('get_year_link')->with('2024')->return('http://example.com/2024/');
-        Functions\when('get_month_link')->with('2024', '01')->return('http://example.com/2024/01/');
-        Functions\when('get_day_link')->with('2024', '01', '15')->return('http://example.com/2024/01/15/');
-        Functions\when('get_feed_link')->return('http://example.com/feed/');
-        Functions\when('get_feed_link')->with('rdf')->return('http://example.com/feed/rdf/');
-        Functions\when('get_feed_link')->with('atom')->return('http://example.com/feed/atom/');
-        Functions\when('get_option')->with('page_for_posts')->return(0);
-        Functions\when('apply_filters')
-            ->beCalledWithConsecutive(
-                ['blitz_cache_purge_urls', \Hamcrest\Matcher::typeOf('array'), 123, \Hamcrest\Matcher::typeOf('stdClass')],
-                ['blitz_cache_purge_urls', \Hamcrest\Matcher::typeOf('array'), 123, \Hamcrest\Matcher::typeOf('stdClass')]
-            )
-            ->returnArg(0);
+        Functions\when('get_permalink')->justReturn('http://example.com/post-123/');
+        Functions\when('get_post_type')->justReturn('post');
+        Functions\when('get_post_type_archive_link')->justReturn('http://example.com/blog/');
+        Functions\when('get_the_category')->justReturn([]);
+        Functions\when('get_the_tags')->justReturn(false);
+        Functions\when('get_author_posts_url')->justReturn('http://example.com/author/john/');
+        Functions\when('get_year_link')->justReturn('http://example.com/2024/');
+        Functions\when('get_month_link')->justReturn('http://example.com/2024/01/');
+        Functions\when('get_day_link')->justReturn('http://example.com/2024/01/15/');
+        Functions\when('get_feed_link')->justReturn('http://example.com/feed/');
+        Functions\when('get_feed_link')->justReturn('http://example.com/feed/rdf/');
+        Functions\when('get_feed_link')->justReturn('http://example.com/feed/atom/');
+        Functions\when('get_option')->justReturn(['page_for_posts' => 0]);
+        // Note: beCalledWithConsecutive is not supported in Brain Monkey
+        // Just return the first argument (URLs array) for apply_filters
+        Functions\when('apply_filters')->returnArg(1);
 
         // Add filter to modify URLs
         add_filter('blitz_cache_purge_urls', function($urls, $post_id, $post) {
@@ -278,12 +266,12 @@ class PurgeTest extends TestCase
             return $urls;
         }, 10, 3);
 
-        $post = new \stdClass();
+        $post = new \WP_Post((object)['post_status' => 'publish']);
         $post->ID = 123;
         $post->post_author = 1;
         $post->post_date = '2024-01-15 12:00:00';
 
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
         $method = new \ReflectionMethod($purge, 'get_related_urls');
         $method->setAccessible(true);
 
@@ -314,7 +302,7 @@ class PurgeTest extends TestCase
         ];
         file_put_contents($stats_file, json_encode($initial_stats));
 
-        $purge = new Blitz_Cache_Purge();
+        $purge = new \Blitz_Cache_Purge();
         $method = new \ReflectionMethod($purge, 'update_purge_stats');
         $method->setAccessible(true);
         $method->invoke($purge);
