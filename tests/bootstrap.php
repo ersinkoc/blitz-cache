@@ -10,8 +10,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../vendor/brain/monkey/inc/api.php';
 
 // Define minimal WordPress constants needed by the plugin
+// Use cache directory path for tests to match BLITZ_CACHE_CACHE_DIR
+// Use a fixed temp path for consistent testing across platforms
 if (!defined('WP_CONTENT_DIR')) {
-    define('WP_CONTENT_DIR', __DIR__ . '/wordpress/wp-content');
+    define('WP_CONTENT_DIR', sys_get_temp_dir() . '/blitz-cache');
 }
 if (!defined('WP_PLUGIN_DIR')) {
     define('WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins');
@@ -33,8 +35,10 @@ if (!defined('BLITZ_CACHE_PLUGIN_URL')) {
 if (!defined('BLITZ_CACHE_PLUGIN_BASENAME')) {
     define('BLITZ_CACHE_PLUGIN_BASENAME', 'blitz-cache/blitz-cache.php');
 }
+// Define cache directory with temp path for tests
+// Use /cache/ subdirectory to match the plugin's expected structure
 if (!defined('BLITZ_CACHE_CACHE_DIR')) {
-    define('BLITZ_CACHE_CACHE_DIR', WP_CONTENT_DIR . '/cache/blitz-cache/');
+    define('BLITZ_CACHE_CACHE_DIR', sys_get_temp_dir() . '/blitz-cache/cache/');
 }
 if (!defined('BLITZ_CACHE_MIN_WP')) {
     define('BLITZ_CACHE_MIN_WP', '6.0');
@@ -50,11 +54,7 @@ if (!function_exists('add_action')) {
     }
 }
 
-if (!function_exists('do_action')) {
-    function do_action($hook, ...$args) {
-        // Stub for plugin loading - tests will override with Brain Monkey
-    }
-}
+// Note: do_action is NOT defined here to allow Brain Monkey to mock it in tests
 
 if (!function_exists('plugin_dir_path')) {
     function plugin_dir_path($file) {
@@ -193,8 +193,8 @@ require_once __DIR__ . '/TestCase.php';
 // Load plugin classes manually
 $plugin_dir = __DIR__ . '/../blitz-cache/';
 
-// Load Minify class (needed by cache class)
-require_once $plugin_dir . 'includes/class-blitz-cache-minify.php';
+// Manually load all required class files
+// Note: Not loading the main plugin file as it has hooks that won't work in tests
 require_once $plugin_dir . 'includes/class-blitz-cache-activator.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-cache.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-cloudflare.php';

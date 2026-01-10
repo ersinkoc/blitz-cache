@@ -26,7 +26,22 @@ class CacheTest extends BlitzCacheTestCase
         $property = $reflection->getProperty('cache_dir');
         $property->setAccessible(true);
 
-        $this->assertEquals($this->test_cache_dir . 'pages/', $property->getValue($cache));
+        $actualDir = $property->getValue($cache);
+        $expectedDir = $this->test_cache_dir . 'pages/';
+
+        // Normalize paths for comparison (handle Windows vs Git Bash differences)
+        $this->assertEquals(
+            $this->normalizePath($expectedDir),
+            $this->normalizePath($actualDir)
+        );
+    }
+
+    /**
+     * Normalize path for cross-platform comparison
+     */
+    private function normalizePath(string $path): string
+    {
+        return str_replace('\\', '/', $path);
     }
 
     /**
@@ -336,12 +351,20 @@ class CacheTest extends BlitzCacheTestCase
         $html = '<html><body>Meta Test</body></html>';
 
         $cache = new Blitz_Cache_Cache();
-        $cache->store($key, $html);
+        $result = $cache->store($key, $html);
+
+        // Check that store succeeded
+        $this->assertTrue($result);
 
         // Check meta file exists
-        $this->assertFileExists($this->test_cache_dir . 'meta.json');
+        $metaFile = $this->test_cache_dir . 'meta.json';
+        $this->assertFileExists($metaFile);
 
-        $meta = json_decode(file_get_contents($this->test_cache_dir . 'meta.json'), true);
+        $metaContent = file_get_contents($metaFile);
+        $this->assertNotEmpty($metaContent, 'Meta file should not be empty');
+
+        $meta = json_decode($metaContent, true);
+        $this->assertIsArray($meta, 'Meta file should contain valid JSON');
         $this->assertArrayHasKey($key, $meta);
         $this->assertArrayHasKey('expires', $meta[$key]);
         $this->assertArrayHasKey('created', $meta[$key]);
@@ -349,10 +372,11 @@ class CacheTest extends BlitzCacheTestCase
         // Delete should also remove meta
         $cache->delete($key);
 
-        $meta_after = json_decode(file_get_contents($this->test_cache_dir . 'meta.json'), true);
+        $meta_after = json_decode(file_get_contents($metaFile), true);
+        $this->assertIsArray($meta_after);
         $this->assertArrayNotHasKey($key, $meta_after);
 
         // Cleanup
-        @unlink($this->test_cache_dir . 'meta.json');
+        @unlink($metaFile);
     }
 }

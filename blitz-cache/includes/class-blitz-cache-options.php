@@ -16,8 +16,16 @@ class Blitz_Cache_Options {
     }
 
     public static function set(array $settings): bool {
-        self::$settings = array_merge(self::$settings ?? [], $settings);
-        return update_option('blitz_cache_settings', self::$settings);
+        // Merge with existing settings
+        $merged = array_merge(self::$settings ?? [], $settings);
+        $result = update_option('blitz_cache_settings', $merged);
+
+        // Reset cache so next get() will fetch fresh data from DB
+        if ($result) {
+            self::$settings = null;
+        }
+
+        return $result;
     }
 
     public static function get_cloudflare(string $key = ''): mixed {
@@ -65,8 +73,16 @@ class Blitz_Cache_Options {
             }
         }
 
-        self::$cloudflare = array_merge(self::$cloudflare ?? [], $settings);
-        return update_option('blitz_cache_cloudflare', self::$cloudflare);
+        // Merge with existing settings and save
+        $merged = array_merge(self::$cloudflare ?? [], $settings);
+        $result = update_option('blitz_cache_cloudflare', $merged);
+
+        // Reset cache so next get_cloudflare() will fetch from DB and decrypt properly
+        if ($result) {
+            self::$cloudflare = null;
+        }
+
+        return $result;
     }
 
     /**

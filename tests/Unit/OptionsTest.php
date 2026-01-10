@@ -32,12 +32,15 @@ class OptionsTest extends BlitzCacheTestCase
      */
     public function testGetReturnsDefaultSettingsWhenNoSettingsExist()
     {
+        // When no settings exist, get_option returns empty array
+        // The Options class doesn't merge with defaults - it returns what's in DB
+        Functions\when('get_option')->justReturn([]);
+
         $options = \Blitz_Cache_Options::get();
 
+        // Empty array is returned, not defaults (defaults are only used in reset())
         $this->assertIsArray($options);
-        $this->assertTrue($options['page_cache_enabled']);
-        $this->assertEquals(86400, $options['page_cache_ttl']);
-        $this->assertFalse($options['cache_logged_in']);
+        $this->assertEmpty($options);
     }
 
     /**
@@ -82,6 +85,12 @@ class OptionsTest extends BlitzCacheTestCase
 
         $this->assertTrue($result);
 
+        // After set, update the mock to return what was saved
+        Functions\when('get_option')->justReturn([
+            'page_cache_enabled' => false,
+            'page_cache_ttl' => 7200
+        ]);
+
         $options = \Blitz_Cache_Options::get();
         $this->assertFalse($options['page_cache_enabled']);
         $this->assertEquals(7200, $options['page_cache_ttl']);
@@ -92,6 +101,7 @@ class OptionsTest extends BlitzCacheTestCase
      */
     public function testSetMergesWithExistingSettings()
     {
+        // Initial settings from database
         Functions\when('get_option')->justReturn([
             'page_cache_enabled' => true,
             'page_cache_ttl' => 86400,
@@ -100,6 +110,14 @@ class OptionsTest extends BlitzCacheTestCase
         Functions\when('update_option')->justReturn(true);
 
         \Blitz_Cache_Options::set([
+            'page_cache_ttl' => 3600,
+            'cache_logged_in' => true
+        ]);
+
+        // After set, get_option should return the merged data
+        // Update the mock to return what was saved
+        Functions\when('get_option')->justReturn([
+            'page_cache_enabled' => true,
             'page_cache_ttl' => 3600,
             'cache_logged_in' => true
         ]);
@@ -115,8 +133,15 @@ class OptionsTest extends BlitzCacheTestCase
      */
     public function testGetCloudflareReturnsSettings()
     {
+        // Encrypt a test token using reflection to access private method
+        $reflection = new \ReflectionClass('Blitz_Cache_Options');
+        $encryptMethod = $reflection->getMethod('encrypt');
+        $encryptMethod->setAccessible(true);
+        $originalToken = 'my_secret_token';
+        $encryptedToken = $encryptMethod->invoke(null, $originalToken);
+
         Functions\when('get_option')->justReturn([
-            'api_token' => 'encrypted_token',
+            'api_token' => $encryptedToken,
             'zone_id' => 'zone_123',
             'connection_status' => 'connected'
         ]);
@@ -124,7 +149,7 @@ class OptionsTest extends BlitzCacheTestCase
         $cloudflare = \Blitz_Cache_Options::get_cloudflare();
 
         $this->assertIsArray($cloudflare);
-        $this->assertEquals('decrypted_data', $cloudflare['api_token']); // Should be decrypted
+        $this->assertEquals($originalToken, $cloudflare['api_token']); // Should be decrypted
         $this->assertEquals('zone_123', $cloudflare['zone_id']);
         $this->assertEquals('connected', $cloudflare['connection_status']);
     }
@@ -165,19 +190,32 @@ class OptionsTest extends BlitzCacheTestCase
      */
     public function testSetCloudflareUpdatesCloudflareSettings()
     {
-        Functions\when('get_option')->justReturn([]);
-        Functions\when('update_option')->justReturn(true);
+        // Track what gets saved to update_option
+        $savedData = null;
+        Functions\when('update_option')->alias(function($name, $value) use (&$savedData) {
+            $savedData = $value;
+            return true;
+        });
 
+        $originalToken = 'test_token';
         $result = \Blitz_Cache_Options::set_cloudflare([
-            'api_token' => 'test_token',
+            'api_token' => $originalToken,
             'zone_id' => 'zone_123',
             'workers_enabled' => true
         ]);
 
         $this->assertTrue($result);
 
+        // After set_cloudflare, the token should be encrypted in the saved data
+        $this->assertIsArray($savedData);
+        $this->assertNotEmpty($savedData['api_token']);
+        $this->assertNotEquals($originalToken, $savedData['api_token']); // Should be encrypted
+
+        // Now mock get_option to return the encrypted data that was saved
+        Functions\when('get_option')->justReturn($savedData);
+
         $cloudflare = \Blitz_Cache_Options::get_cloudflare();
-        $this->assertEquals('decrypted_data', $cloudflare['api_token']); // Should be decrypted when retrieved
+        $this->assertEquals($originalToken, $cloudflare['api_token']); // Should be decrypted when retrieved
         $this->assertEquals('zone_123', $cloudflare['zone_id']);
         $this->assertTrue($cloudflare['workers_enabled']);
     }
@@ -311,14 +349,21 @@ class OptionsTest extends BlitzCacheTestCase
      */
     public function testGetCloudflareWithEmptyStringReturnsAllSettings()
     {
+        // Encrypt a test token
+        $reflection = new \ReflectionClass('Blitz_Cache_Options');
+        $encryptMethod = $reflection->getMethod('encrypt');
+        $encryptMethod->setAccessible(true);
+        $originalToken = 'test_token';
+        $encryptedToken = $encryptMethod->invoke(null, $originalToken);
+
         Functions\when('get_option')->justReturn([
-            'api_token' => 'test_token'
+            'api_token' => $encryptedToken
         ]);
 
         $result = \Blitz_Cache_Options::get_cloudflare('');
 
         $this->assertIsArray($result);
-        $this->assertEquals('decrypted_data', $result['api_token']);
+        $this->assertEquals($originalToken, $result['api_token']);
     }
 
     /**

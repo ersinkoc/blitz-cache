@@ -20,13 +20,8 @@ abstract class BlitzCacheTestCase extends TestCase
         parent::setUp();
         \Brain\Monkey\setup();
 
-        // Set up test cache directory
-        $this->test_cache_dir = sys_get_temp_dir() . '/blitz-cache-test/';
-
-        // Define cache directory constant if not already defined
-        if (!defined('BLITZ_CACHE_CACHE_DIR')) {
-            define('BLITZ_CACHE_CACHE_DIR', $this->test_cache_dir);
-        }
+        // Set up test cache directory using the same constant as the plugin
+        $this->test_cache_dir = BLITZ_CACHE_CACHE_DIR;
 
         // Create test cache directory
         if (!file_exists($this->test_cache_dir . 'pages/')) {
@@ -64,7 +59,14 @@ abstract class BlitzCacheTestCase extends TestCase
         Functions\when('esc_attr')->returnArg();
         Functions\when('_e')->returnArg();
         Functions\when('wp_json_encode')->returnArg();
-        Functions\when('apply_filters')->returnArg();
+        // Mock apply_filters to return the second argument (the value being filtered)
+        Functions\when('apply_filters')->alias(function($hook, $value, ...$args) {
+            return $value;
+        });
+        // Mock wp_json_encode to actually encode the data
+        Functions\when('wp_json_encode')->alias(function($data, ...$args) {
+            return json_encode($data, ...$args);
+        });
         Functions\when('is_ssl')->justReturn(false);
         Functions\when('wp_is_mobile')->justReturn(false);
         Functions\when('is_user_logged_in')->justReturn(false);
@@ -127,12 +129,12 @@ abstract class BlitzCacheTestCase extends TestCase
 
     /**
      * Mock specific option value
+     * Note: beCalledWith is not supported in Brain Monkey, so this sets a general mock
      */
     protected function mockOption(string $key, mixed $value): void
     {
-        Functions\when('get_option')
-            ->beCalledWith([$key])
-            ->justReturn($value);
+        // Set the option in a static array to simulate WordPress options
+        Functions\when('get_option')->justReturn($value);
     }
 
     /**

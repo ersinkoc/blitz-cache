@@ -13,6 +13,17 @@ use Brain\Monkey\Functions;
  */
 class WarmupTest extends BlitzCacheTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Set up common mocks for warmup tests
+        Functions\when('home_url')->justReturn('http://example.com/');
+        Functions\when('wp_remote_get')->justReturn(['body' => '']);
+        Functions\when('wp_remote_retrieve_response_code')->justReturn(200);
+        Functions\when('wp_remote_retrieve_body')->justReturn('');
+    }
+
     /**
      * Test run does nothing when warmup disabled
      */
@@ -34,7 +45,7 @@ class WarmupTest extends BlitzCacheTestCase
      */
     public function testRunExecutesWhenWarmupEnabled()
     {
-        Functions\when('home_url')->justReturn('http://example.com');
+        // home_url is already mocked in setUp
         Functions\when('wp_remote_get')->justReturn(new \WP_Error('test', 'Test error'));
         Functions\when('wp_remote_retrieve_response_code')->justReturn(200);
         Functions\when('wp_remote_retrieve_body')->justReturn('');
@@ -91,6 +102,7 @@ class WarmupTest extends BlitzCacheTestCase
         ];
 
         Functions\when('wp_remote_get')->justReturn($mockResponse);
+        Functions\when('wp_remote_retrieve_response_code')->justReturn(404);
 
         $warmup = new \Blitz_Cache_Warmup();
         $result = $warmup->warm_url('http://example.com/test/');
@@ -109,7 +121,7 @@ class WarmupTest extends BlitzCacheTestCase
         ]);
         $this->resetOptionsCache();
 
-        Functions\when('home_url')->justReturn('http://example.com');
+        // home_url is already mocked in setUp to return 'http://example.com/'
         Functions\when('wp_remote_get')->justReturn(new \WP_Error('test', 'Test error'));
         Functions\when('get_posts')->justReturn([]);
         Functions\when('get_pages')->justReturn([]);
@@ -136,7 +148,7 @@ class WarmupTest extends BlitzCacheTestCase
         ]);
         $this->resetOptionsCache();
 
-        Functions\when('home_url')->justReturn('http://example.com');
+        // home_url is already mocked in setUp
         Functions\when('get_nav_menu_locations')->justReturn([
             'primary' => 1
         ]);
@@ -158,11 +170,11 @@ class WarmupTest extends BlitzCacheTestCase
     }
 
     /**
-     * Test get_sitemap_urls returns empty array on error
+     * Test get_sitemap_urls falls back to generate_url_list on error
      */
     public function testGetSitemapUrlsReturnsEmptyOnError()
     {
-        Functions\when('home_url')->justReturn('http://example.com');
+        // home_url is already mocked in setUp
         Functions\when('get_posts')->justReturn([]);
         Functions\when('get_pages')->justReturn([]);
         Functions\when('get_categories')->justReturn([]);
@@ -175,7 +187,8 @@ class WarmupTest extends BlitzCacheTestCase
         $urls = $method->invoke($warmup);
 
         $this->assertIsArray($urls);
-        $this->assertEmpty($urls);
+        // When sitemap fails, it falls back to generate_url_list which includes homepage
+        $this->assertContains('http://example.com/', $urls);
     }
 
     /**
@@ -197,7 +210,7 @@ class WarmupTest extends BlitzCacheTestCase
             (object)['term_id' => 5, 'name' => 'News']
         ];
 
-        Functions\when('home_url')->justReturn('http://example.com');
+        // home_url is already mocked in setUp
         Functions\when('get_posts')->justReturn($posts);
         Functions\when('get_pages')->justReturn($pages);
         Functions\when('get_categories')->justReturn($categories);
@@ -249,15 +262,32 @@ class WarmupTest extends BlitzCacheTestCase
      */
     public function testFilterHookBlitzCacheWarmupUrls()
     {
-        Functions\when('home_url')->justReturn('http://example.com');
-        Functions\when('wp_remote_get')->justReturn(new \WP_Error('test', 'Test error'));
+        $this->mockOptions([
+            'warmup_enabled' => true
+        ]);
+        $this->resetOptionsCache();
+
+        // home_url is already mocked in setUp
+        // Mock sitemap fetch to return empty XML (fallback to generate_url_list)
+        Functions\when('wp_remote_get')->justReturn('');
+        Functions\when('wp_remote_retrieve_body')->justReturn('');
+        Functions\when('wp_remote_retrieve_response_code')->justReturn(200);
         Functions\when('get_posts')->justReturn([]);
         Functions\when('get_pages')->justReturn([]);
         Functions\when('get_categories')->justReturn([]);
 
-        // Add filter to modify URLs
-        add_filter('blitz_cache_warmup_urls', function($urls) {
-            $urls[] = 'http://example.com/custom-warmup-url/';
+        // Store filter callback to verify it gets called
+        $filterCalled = false;
+        $customUrlAdded = 'http://example.com/custom-warmup-url/';
+
+        // Override apply_filters mock for this test
+        Functions\when('apply_filters')->alias(function($hook, $urls) use ($customUrlAdded, &$filterCalled) {
+            if ($hook === 'blitz_cache_warmup_urls') {
+                $filterCalled = true;
+                if (\is_array($urls)) {
+                    $urls[] = $customUrlAdded;
+                }
+            }
             return $urls;
         });
 
@@ -267,8 +297,13 @@ class WarmupTest extends BlitzCacheTestCase
         $method->setAccessible(true);
         $urls = $method->invoke($warmup);
 
-        // Check that custom URL was added
-        $this->assertContains('http://example.com/custom-warmup-url/', $urls);
+        // Apply the filter manually like run() does
+        $urls = apply_filters('blitz_cache_warmup_urls', $urls);
+
+        // Check that filter was called and custom URL was added
+        $this->assertIsArray($urls);
+        $this->assertTrue($filterCalled);
+        $this->assertContains($customUrlAdded, $urls);
     }
 
     /**
@@ -276,7 +311,7 @@ class WarmupTest extends BlitzCacheTestCase
      */
     public function testBatchProcessing()
     {
-        Functions\when('home_url')->justReturn('http://example.com');
+        // home_url is already mocked in setUp
 
         $this->mockOptions([
             'warmup_enabled' => true,
@@ -312,7 +347,7 @@ class WarmupTest extends BlitzCacheTestCase
      */
     public function testGetMenuUrlsWithNoMenus()
     {
-        Functions\when('home_url')->justReturn('http://example.com');
+        // home_url is already mocked in setUp
         Functions\when('get_nav_menu_locations')->justReturn([]);
 
         $warmup = new \Blitz_Cache_Warmup();

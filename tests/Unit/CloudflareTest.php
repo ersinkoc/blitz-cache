@@ -29,6 +29,11 @@ class CloudflareTest extends BlitzCacheTestCase
         Functions\when('wp_salt')->justReturn('test_salt_for_encryption');
         // Note: openssl_*, hash_hmac, base64_* are PHP internal functions that cannot be mocked
         // The Blitz_Cache_Options class handles encryption internally with fallbacks
+
+        // Mock wp_remote_retrieve_body to return the body from the response array
+        Functions\when('wp_remote_retrieve_body')->alias(function($response) {
+            return is_array($response) && isset($response['body']) ? $response['body'] : '';
+        });
     }
 
     protected function tearDown(): void
@@ -380,11 +385,12 @@ class CloudflareTest extends BlitzCacheTestCase
     {
         $actionFired = false;
 
-        add_action('blitz_cache_cf_purge_success', function($type, $urls = []) {
-            global $actionFired;
-            $actionFired = true;
-            $this->assertEquals('all', $type);
-        }, 10, 2);
+        // Mock do_action to track if it was called
+        Functions\when('do_action')->alias(function($hook, ...$args) use (&$actionFired) {
+            if ($hook === 'blitz_cache_cf_purge_success' && $args[0] === 'all') {
+                $actionFired = true;
+            }
+        });
 
         $mockResponse = [
             'success' => true,
@@ -408,11 +414,12 @@ class CloudflareTest extends BlitzCacheTestCase
     {
         $actionFired = false;
 
-        add_action('blitz_cache_cf_purge_failed', function($type, $response) {
-            global $actionFired;
-            $actionFired = true;
-            $this->assertEquals('urls', $type);
-        }, 10, 2);
+        // Mock do_action to track if it was called
+        Functions\when('do_action')->alias(function($hook, ...$args) use (&$actionFired) {
+            if ($hook === 'blitz_cache_cf_purge_failed') {
+                $actionFired = true;
+            }
+        });
 
         Functions\when('wp_remote_request')->justReturn(new \WP_Error('http_error', 'Error'));
 
