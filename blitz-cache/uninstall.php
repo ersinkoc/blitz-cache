@@ -42,12 +42,38 @@ if ($preference === 'delete') {
         }
     }
 
-    // Try to remove WP_CACHE constant
+    // Try to remove WP_CACHE constant with safer approach
     $config_file = ABSPATH . 'wp-config.php';
     if (is_writable($config_file)) {
-        $config = file_get_contents($config_file);
-        $config = preg_replace("/define\s*\(\s*['\"]WP_CACHE['\"]\s*,\s*true\s*\)\s*;\s*\/\/\s*Added by Blitz Cache\n?/", '', $config);
-        file_put_contents($config_file, $config);
+        // Create backup before modification
+        $backup_file = $config_file . '.blitz_backup.' . time();
+        if (!copy($config_file, $backup_file)) {
+            // Skip modification if backup fails
+            error_log('Blitz Cache: Failed to backup wp-config.php, skipping modification');
+        } else {
+            $config = file_get_contents($config_file);
+            $original_config = $config;
+            $config = preg_replace("/define\s*\(\s*['\"]WP_CACHE['\"]\s*,\s*true\s*\)\s*;\s*\/\/\s*Added by Blitz Cache\n?/", '', $config);
+
+            // Only write if content actually changed
+            if ($config !== $original_config) {
+                // Write to temp file first for atomic operation
+                $temp_file = $config_file . '.tmp.' . uniqid();
+                $result = @file_put_contents($temp_file, $config, LOCK_EX);
+
+                if ($result !== false && @rename($temp_file, $config_file)) {
+                    // Success, clean up backup after a delay
+                    wp_schedule_single_event(time() + HOUR_IN_SECONDS, 'blitz_cache_cleanup_config_backup', [$backup_file]);
+                } else {
+                    // Restore from backup on failure
+                    @unlink($temp_file);
+                    error_log('Blitz Cache: Failed to write wp-config.php, restored from backup');
+                }
+            } else {
+                // No changes needed, remove backup
+                @unlink($backup_file);
+            }
+        }
     }
 }
 

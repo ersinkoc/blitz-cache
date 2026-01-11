@@ -373,12 +373,31 @@
         });
 
         // Copy Workers script
-        $('#btn-copy-script').on('click', function(e) {
+        $('#btn-copy-script').on('click', async function(e) {
             e.preventDefault();
             const textarea = document.getElementById('workers_script');
-            textarea.select();
-            document.execCommand('copy');
-            alert('Script copied to clipboard');
+
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(textarea.value);
+                    alert('Script copied to clipboard');
+                } catch (err) {
+                    // Fallback to deprecated method if modern API fails
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        alert('Script copied to clipboard');
+                    } catch (fallbackErr) {
+                        alert('Failed to copy script to clipboard');
+                    }
+                }
+            } else {
+                // Fallback for older browsers
+                textarea.select();
+                document.execCommand('copy');
+                alert('Script copied to clipboard');
+            }
         });
     });
 

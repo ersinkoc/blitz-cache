@@ -210,8 +210,6 @@ require_once $plugin_dir . 'includes/class-blitz-cache.php';
 // Load new utility classes
 require_once $plugin_dir . 'includes/class-blitz-cache-exception.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-logger.php';
-require_once $plugin_dir . 'includes/class-blitz-cache-error-handler.php';
-require_once $plugin_dir . 'includes/class-blitz-cache-validator.php';
 require_once $plugin_dir . 'includes/class-blitz-cache-helpers.php';
 
 // Set up test environment
